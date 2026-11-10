@@ -1333,8 +1333,14 @@ window.Slides={
   ir:n=>ir(n),
   reinicia:()=>ir(atual),
   aoMudar:null,
+  /* botões interativos do slide atual (exemplos, "Rodar sozinho", Collatz…) — o celular aperta por aqui */
+  botoes(){const c=cenas[atual],grupos=[];
+    return $$("button",c).map((b,i)=>{const lb=b.closest(".linha-btn"),pq=lb&&lb.querySelector(".peq");
+      let k=grupos.indexOf(lb);if(k<0){grupos.push(lb);k=grupos.length-1}
+      return{i,k,g:pq?pq.textContent.replace(/:\s*$/,"").trim():"",r:(b.textContent||"").replace(/\s+/g," ").trim(),on:b.classList.contains("on")}})},
+  clicar(slide,i){if(slide!==atual+1)return false;const b=$$("button",cenas[atual])[i];if(!b||b.disabled)return false;b.click();return true},
   estado(){const c=cenas[atual],q=c.dataset.quem||"A",nx=cenas[atual+1],nq=nx?(nx.dataset.quem||"A"):null;
-    return{slide:atual+1,total:N,passo:c._p||0,passos:maxP(c),titulo:TITULOS[atual],quem:q,nome:EQUIPE[q],parte:PARTES[q],nota:c.dataset.nota||"",
+    return{slide:atual+1,total:N,passo:c._p||0,passos:maxP(c),titulo:TITULOS[atual],quem:q,nome:EQUIPE[q],parte:PARTES[q],nota:c.dataset.nota||"",botoes:this.botoes(),
       prox:nx?{titulo:TITULOS[atual+1],quem:nq,nome:EQUIPE[nq],parte:PARTES[nq]}:null,
       lista:cenas.map((x,i)=>({t:TITULOS[i],q:x.dataset.quem||"A"})),nomes:EQUIPE,partes:PARTES,ts:Date.now()}}
 };

@@ -140,6 +140,7 @@ function executa(c){
     case "volta":S.volta();break;
     case "ir":S.ir((parseInt(c.n,10)||1)-1);break;
     case "reinicia":S.reinicia();break;
+    case "botao":S.clicar(parseInt(c.slide,10),parseInt(c.i,10));break;
     default:return}
   envia();bt.classList.remove("rm-cmd");void bt.offsetWidth;bt.classList.add("rm-cmd")}
 S.aoMudar=envia;

@@ -71,6 +71,14 @@ main{flex:1;min-height:0;display:flex;flex-direction:column;gap:.55rem;padding:.
 .aviso b{color:var(--cor2)}
 .aviso span{opacity:.6;font-size:.8rem}
 .aviso.forte{background:rgba(255,255,255,.1);box-shadow:inset 0 0 0 2px var(--cor2);animation:pulsa 1.6s ease-in-out infinite}
+.interagir{border-radius:16px;padding:.5rem .6rem .6rem;background:rgba(255,255,255,.06);box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.1);animation:entra .3s both}
+.interagir>span{display:block;font-family:var(--mono);font-size:.66rem;letter-spacing:.12em;text-transform:uppercase;opacity:.6;margin:0 0 .45rem .2rem}
+.grupo-bt{display:flex;flex-wrap:wrap;gap:.45rem;align-items:center}
+.grupo-bt+.grupo-bt{margin-top:.45rem}
+.grupo-bt em{font-style:normal;font-size:.8rem;opacity:.7;margin:0 .1rem 0 .2rem}
+.chip{min-height:2.7rem;padding:.55rem 1rem;border-radius:999px;background:rgba(255,255,255,.12);box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.22);font-weight:700;font-size:.98rem;transition:transform .08s,background .25s}
+.chip.on{background:var(--cor);color:#111;box-shadow:none}
+.chip:active,.chip.toque{transform:scale(.93)}
 .notas{flex:1;min-height:5.5rem;display:flex;flex-direction:column;border-radius:18px;background:#fffbe8;color:#3a2d00;overflow:hidden}
 .notas-topo{display:flex;align-items:center;justify-content:space-between;padding:.45rem .55rem .25rem .9rem;font-family:var(--mono);font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;color:#8a6a00}
 .notas-topo button{background:rgba(0,0,0,.07);color:#5a4500;border-radius:9px;padding:.25rem .6rem;margin-left:.3rem;font-family:var(--texto);font-weight:700;letter-spacing:0;text-transform:none;font-size:.85rem}
@@ -153,6 +161,7 @@ footer{display:flex;flex-direction:column;gap:.55rem}
     <div class="cab"><span class="num"><span id="numAtual">–</span><small>/<span id="numTotal">–</span></small></span><h1 id="titulo">Conectando…</h1></div>
     <div class="passos"><div id="pips"></div><span id="passoTxt"></span></div>
     <div class="aviso" id="aviso" hidden></div>
+    <div class="interagir" id="interagir" hidden><span>mexer neste slide</span><div id="botoes"></div></div>
     <div class="notas">
       <div class="notas-topo"><span>o que falar</span><div><button id="fMenos" aria-label="Diminuir letra">A&minus;</button><button id="fMais" aria-label="Aumentar letra">A+</button></div></div>
       <div id="notaTxt"></div>
@@ -252,12 +261,13 @@ function marcaConexao(){let s,t;
   const c=$("#conexao");c.dataset.st=s;$("#conTxt").textContent=t;$("#controle").classList.toggle("fraco",s!=="ok")}
 
 /* ================= comandos ================= */
-function manda(acao,n){
+function manda(acao,extra){
   const agora=Date.now();if(acao!=="ir"&&agora-ultToque<180)return;ultToque=agora;
   vibra(acao==="prox"?20:12);acorda();
   if(acao==="prox")relAutoInicia();
   if(!ch||!inscrito){toast("Ainda conectando ao servidor…");return}
-  try{const r=ch.send({type:"broadcast",event:"cmd",payload:{acao,n,id:meuId+"-"+agora}});if(r&&r.catch)r.catch(()=>{})}catch(e){}
+  const payload=Object.assign({acao,id:meuId+"-"+agora},extra||{});
+  try{const r=ch.send({type:"broadcast",event:"cmd",payload});if(r&&r.catch)r.catch(()=>{})}catch(e){}
   clearTimeout(tSemResp);
   tSemResp=setTimeout(()=>toast(`A apresentação não respondeu. Ela está aberta no computador com o código ${sala}?`,4500),2600)}
 function aperta(el){el.classList.remove("toque");void el.offsetWidth;el.classList.add("toque");setTimeout(()=>el.classList.remove("toque"),120)}
@@ -298,6 +308,13 @@ function desenha(){
   if(E.prox&&E.prox.quem!==E.quem){av.hidden=false;av.style.setProperty("--cor2",CORES[E.prox.quem]||"#fff");av.classList.toggle("forte",ultimo);
     av.innerHTML=`${ultimo?"Próximo toque passa para":"Depois deste slide fala"} <b>${esc(E.prox.nome)}</b> <span>· ${esc(E.prox.parte)}</span>`}
   else av.hidden=true;
+  /* botões interativos do slide (exemplos, rodar sozinho, números do Collatz…) */
+  const bx=$("#interagir"),bts=Array.isArray(E.botoes)?E.botoes:[];
+  if(bts.length){bx.hidden=false;let h="",k=null;
+    bts.forEach(b=>{if(b.k!==k){if(k!==null)h+="</div>";k=b.k;h+=`<div class="grupo-bt">${b.g?`<em>${esc(b.g)}</em>`:""}`}
+      h+=`<button class="chip${b.on?" on":""}" data-bt="${b.i}">${esc(b.r)}</button>`});
+    $("#botoes").innerHTML=h+"</div>"}
+  else bx.hidden=true;
   const nt=$("#notaTxt");nt.innerHTML=notasHtml(E.nota,E.passo,E.passos);
   const ag=nt.querySelector(".agora");if(ag){const top=ag.offsetTop-nt.offsetTop-8;if(top<nt.scrollTop||top>nt.scrollTop+nt.clientHeight-40)nt.scrollTop=top}
   if(!$("#folha").hidden)desenhaLista()}
@@ -319,7 +336,8 @@ $("#btReinicia").addEventListener("click",()=>manda("reinicia"));
 $("#btLista").addEventListener("click",abreFolha);
 $("#folhaX").addEventListener("click",fechaFolha);
 $("#folha").addEventListener("click",e=>{if(e.target.id==="folha")fechaFolha()});
-$("#lista").addEventListener("click",e=>{const b=e.target.closest("[data-ir]");if(b){manda("ir",+b.dataset.ir);fechaFolha()}});
+$("#lista").addEventListener("click",e=>{const b=e.target.closest("[data-ir]");if(b){manda("ir",{n:+b.dataset.ir});fechaFolha()}});
+$("#botoes").addEventListener("click",e=>{const b=e.target.closest("[data-bt]");if(!b||!E)return;aperta(b);manda("botao",{slide:E.slide,i:+b.dataset.bt})});
 $("#relogio").addEventListener("click",()=>{relToggle();vibra(10)});
 $("#btZerar").addEventListener("click",()=>{relZera();fechaFolha();toast("Cronômetro zerado",1500)});
 $("#btSair").addEventListener("click",()=>{fechaFolha();mem.set("sala","");try{const u=new URL(location.href);u.searchParams.delete("sala");history.replaceState(null,"",u)}catch(e){}mostraEntrada()});
