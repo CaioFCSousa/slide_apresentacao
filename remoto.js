@@ -167,3 +167,4 @@ document.addEventListener("visibilitychange",()=>{if(document.visibilityState===
 marca(st);
 conecta();
 })();
+  
