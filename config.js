@@ -7,6 +7,6 @@
    Não é preciso criar tabela nenhuma: só usamos o Realtime (Broadcast).
    ===================================================================== */
 window.CONFIG_REMOTO = {
-  SUPABASE_URL: "https://lkslyjvnjliestcrmafq.supabase.co",
-  SUPABASE_KEY: "sb_publishable_uYcC7z-C-o20pk4rszyWFQ_53X1A3cn"
+  SUPABASE_URL: "https://SEU-PROJETO.supabase.co",
+  SUPABASE_KEY: "SUA_CHAVE_PUBLISHABLE_OU_ANON"
 };
