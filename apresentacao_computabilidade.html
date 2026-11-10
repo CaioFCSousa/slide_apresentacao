@@ -1,0 +1,1337 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>O que o computador não consegue</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+/* Cada slide é uma "cena". Elementos com data-f aparecem um por vez ao apertar →.
+   data-desde="n" liga a classe .ativo a partir do passo n; data-luz="n" destaca no passo n. */
+:root{
+  --bg:#0d1120;--linha:rgba(255,255,255,.065);
+  --papel:#f5efe3;--tinta:#1c1916;--tinta2:#5d554a;
+  --ciano:#2ed3bf;--ambar:#ffb62e;--coral:#ff5f57;--violeta:#9b8bff;--verde:#5fd36f;--azul:#56b4ff;
+  --A:#2ed3bf;--B:#ffb62e;--C:#9b8bff;--atual:var(--A);
+  --display:"Bricolage Grotesque","Trebuchet MS",system-ui,sans-serif;
+  --texto:"Atkinson Hyperlegible","Segoe UI",Verdana,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,Consolas,monospace;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{font-size:clamp(14px,.5vw + .95vh,24px);height:100%}
+body{margin:0;height:100%;background:var(--bg);color:#eef1ff;font-family:var(--texto);overflow:hidden;-webkit-font-smoothing:antialiased}
+button{font:inherit;cursor:pointer;color:inherit}
+button:focus-visible{outline:3px solid var(--ambar);outline-offset:3px}
+h1,h2,h3{font-family:var(--display);font-weight:800;margin:0;line-height:1.03;letter-spacing:-.015em;text-wrap:balance}
+p,ul,ol{margin:0}
+ul,ol{padding:0}
+code{font-family:var(--mono)}
+
+/* ---------- palco ---------- */
+#palco{position:fixed;inset:0}
+.cena{position:absolute;inset:0;display:none;overflow-y:auto;overflow-x:hidden;
+  padding:calc(3.8rem + env(safe-area-inset-top,0px)) max(16px,4.5vw) calc(5.4rem + env(safe-area-inset-bottom,0px))}
+.cena.on{display:flex;flex-direction:column;animation:entraCena .45s ease both}
+.cena>.miolo{margin-block:auto}
+.miolo{width:100%;max-width:1440px;margin-inline:auto;display:flex;flex-direction:column;gap:1.3rem;min-width:0;position:relative;z-index:1}
+@keyframes entraCena{from{opacity:0}to{opacity:1}}
+
+.noite{color:#eef1ff;background:
+  radial-gradient(70% 55% at 12% 0%,rgba(86,180,255,.16),transparent 70%),
+  radial-gradient(60% 50% at 100% 100%,rgba(155,139,255,.13),transparent 70%),
+  linear-gradient(var(--linha) 1px,transparent 1px) 0 0/52px 52px,
+  linear-gradient(90deg,var(--linha) 1px,transparent 1px) 0 0/52px 52px,
+  var(--bg)}
+.papel{color:var(--tinta);background:radial-gradient(#d8ccb6 1.2px,transparent 1.6px) 0 0/24px 24px,var(--papel)}
+.ciano{color:#eafffb;background:radial-gradient(90% 70% at 85% 0%,#1d9a8e 0%,#0e4a47 55%,#082a29 100%)}
+.violeta{color:#f1eeff;background:radial-gradient(90% 70% at 10% 0%,#4f3fb0 0%,#251c63 55%,#120d33 100%)}
+.alerta{color:#fff1ef;background:radial-gradient(90% 70% at 50% 0%,#b02a2e 0%,#5e1218 55%,#2b070b 100%)}
+
+/* ---------- tipografia e peças comuns ---------- */
+.topo{display:flex;flex-direction:column;gap:.5rem}
+.etiqueta{font-family:var(--mono);font-size:.78rem;letter-spacing:.16em;text-transform:uppercase;opacity:.82}
+.titulo{font-size:clamp(2.3rem,5.2vw,5.4rem)}
+.titulo-m{font-size:clamp(1.8rem,3.5vw,3.6rem)}
+.lead{font-size:1.25rem;line-height:1.45;max-width:64ch;opacity:.93}
+.peq{font-size:.85rem;opacity:.75;line-height:1.45}
+.centro{text-align:center;margin-inline:auto}
+.centro-col{align-items:center;text-align:center}
+.grade-2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:2rem;align-items:center}
+.grade-3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1.2rem}
+.grade-4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1rem}
+.linha-btn{display:flex;flex-wrap:wrap;gap:.55rem;align-items:center}
+.ok{color:var(--verde)}.ruim{color:var(--coral)}
+.cA{color:var(--A)}.cB{color:var(--B)}.cC{color:var(--C)}
+.card{border-radius:22px;padding:1.1rem 1.3rem;background:rgba(255,255,255,.06);box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.13);min-width:0;line-height:1.45;font-size:1.08rem}
+.papel .card{background:#fff;box-shadow:0 5px 0 #e2d6bf,inset 0 0 0 1.5px #ebe1cd}
+.btn{border:0;border-radius:999px;padding:.55em 1.1em;font-weight:700;background:rgba(255,255,255,.12);box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.22);transition:transform .12s,background .2s}
+.btn:hover{background:rgba(255,255,255,.2)}
+.btn:active{transform:translateY(2px)}
+.btn.on{background:var(--ambar);color:#1d1404;box-shadow:none}
+.papel .btn{background:#fff;box-shadow:inset 0 0 0 1.5px #d9cdb7}
+.papel .btn.on{background:var(--tinta);color:#fff}
+.frase{position:relative;border-radius:22px;padding:1.05rem 1.4rem 1.1rem 3.4rem;font-family:var(--display);font-weight:700;font-size:clamp(1.25rem,2.15vw,2.1rem);line-height:1.15;background:var(--cor,var(--ambar));color:#15110a;box-shadow:0 6px 0 rgba(0,0,0,.22);text-align:left}
+.frase::before{content:"\201C";position:absolute;left:.75rem;top:-.1rem;font-size:4.2rem;line-height:1;opacity:.35}
+.frase small{display:block;font-family:var(--mono);font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;opacity:.72;margin-bottom:.35rem;font-weight:500}
+.frase code{font-size:.85em}
+.codigo{font-family:var(--mono);font-size:clamp(.82rem,1.2vw,1.2rem);line-height:1.65;background:#090c18;color:#e6e9ff;border-radius:18px;padding:1rem 1.2rem;box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.1);overflow-x:auto;text-align:left}
+.codigo .ln{display:block;white-space:pre;border-radius:6px;padding:0 .4rem;margin:0 -.4rem;transition:background .3s,box-shadow .3s,opacity .45s,transform .6s}
+.codigo .ln.acesa{background:rgba(255,182,46,.2);box-shadow:inset 3px 0 0 var(--ambar)}
+.k{color:#ff8fb6}.fn{color:#7fd4ff}.nu{color:#ffcf6e}.st{color:#a8e88a}.co{color:#7c84aa;font-style:italic}
+.casa{width:var(--w,3.8rem);height:var(--w,3.8rem);flex:none;border-radius:12px;display:grid;place-items:center;font-family:var(--mono);font-weight:700;font-size:1.6rem;background:#f6f0e2;color:#1c1916;box-shadow:0 4px 0 #b6a88f;transition:background .3s,transform .3s,box-shadow .3s,opacity .3s,color .3s}
+.casa.vazia{color:#c3b79f}
+
+/* ---------- fragmentos e entradas ---------- */
+.cena [data-f]{opacity:0;transform:translateY(16px);pointer-events:none;transition:opacity .45s ease,transform .6s cubic-bezier(.2,.9,.25,1.2)}
+.cena [data-f][data-fx=pop]{transform:scale(.6)}
+.cena [data-f][data-fx=esq]{transform:translateX(-40px)}
+.cena [data-f][data-fx=dir]{transform:translateX(40px)}
+.cena [data-f].vis{opacity:1!important;transform:none!important;pointer-events:auto}
+.cena .some{display:none!important}
+.cena.on [data-a]{animation:var(--an,sobe) .7s cubic-bezier(.2,.9,.25,1.2) var(--d,0s) both}
+@keyframes sobe{from{opacity:0;transform:translateY(26px)}to{opacity:1;transform:none}}
+@keyframes pop{0%{opacity:0;transform:scale(.5)}70%{opacity:1;transform:scale(1.06)}100%{opacity:1;transform:none}}
+@keyframes desliza{from{opacity:0;transform:translateX(-36px)}to{opacity:1;transform:none}}
+@keyframes gira{to{transform:rotate(360deg)}}
+@keyframes pisca{50%{opacity:0}}
+@keyframes pulsa{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
+@keyframes treme{0%,100%{transform:translateX(0)}20%{transform:translateX(-10px)}40%{transform:translateX(10px)}60%{transform:translateX(-6px)}80%{transform:translateX(6px)}}
+@keyframes flutua{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+@keyframes carimba{0%{opacity:0;transform:scale(2.6) rotate(-10deg)}70%{opacity:1;transform:scale(.95) rotate(-10deg)}100%{opacity:1;transform:scale(1) rotate(-10deg)}}
+@keyframes desenha{to{stroke-dashoffset:0}}
+.treme{animation:treme .5s}
+
+/* ---------- moldura: barra, quem fala, doca, notas ---------- */
+#barra{position:fixed;left:0;top:0;height:5px;width:0;background:var(--atual);z-index:31;transition:width .4s ease,background .4s;box-shadow:0 0 12px var(--atual)}
+#quem{position:fixed;top:calc(.75rem + env(safe-area-inset-top,0px));left:max(.8rem,env(safe-area-inset-left,0px));z-index:30;display:flex;align-items:center;gap:.55rem;padding:.3rem .95rem .3rem .35rem;border-radius:999px;background:rgba(10,13,26,.8);backdrop-filter:blur(8px);color:#fff;font-size:.8rem;box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.12)}
+#quem i{width:1.55rem;height:1.55rem;border-radius:50%;background:var(--atual);display:grid;place-items:center;transition:background .4s}
+#quem i svg{width:.85rem;height:.85rem}
+#quem span{opacity:.68}
+#quem[hidden]{display:none}
+#doca{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(.7rem + env(safe-area-inset-bottom,0px));z-index:30;display:flex;align-items:center;gap:.3rem;padding:.35rem;border-radius:999px;background:rgba(10,13,26,.84);backdrop-filter:blur(8px);color:#fff;box-shadow:0 8px 24px rgba(0,0,0,.35);max-width:calc(100vw - 24px)}
+#doca button{border:0;background:transparent;width:2.4rem;height:2.4rem;border-radius:50%;display:grid;place-items:center;flex:none}
+#doca button:hover{background:rgba(255,255,255,.12)}
+#doca svg{width:1.15rem;height:1.15rem}
+#contador{font-family:var(--mono);font-size:.78rem;min-width:3.8em;text-align:center}
+#pips{display:flex;gap:4px;padding-right:.3rem}
+#pips i{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.25);transition:background .3s}
+#pips i.on{background:var(--atual)}
+#notas{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(4.4rem + env(safe-area-inset-bottom,0px));z-index:29;width:min(800px,calc(100vw - 32px));max-height:42vh;overflow:auto;background:#fffbe8;color:#3a2d00;border-radius:14px;padding:.9rem 1.1rem;font-size:.95rem;line-height:1.5;box-shadow:0 10px 30px rgba(0,0,0,.4)}
+#notas b{display:block;font-family:var(--mono);font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:#8a6a00;margin-bottom:.3rem}
+#notas[hidden]{display:none}
+
+/* ---------- 1 capa ---------- */
+.bits{position:absolute;inset:0;overflow:hidden;pointer-events:none}
+.bits span{position:absolute;top:-60%;font-family:var(--mono);font-size:1rem;letter-spacing:.4em;writing-mode:vertical-rl;color:rgba(46,211,191,.15);animation:chove var(--t,12s) linear var(--atr,0s) infinite}
+@keyframes chove{to{transform:translateY(200vh)}}
+.selo{align-self:flex-start;display:inline-flex;align-items:center;gap:.5rem;border-radius:999px;padding:.42rem .95rem;font-family:var(--mono);font-size:.76rem;letter-spacing:.06em;background:rgba(46,211,191,.13);color:var(--ciano);box-shadow:inset 0 0 0 1.5px rgba(46,211,191,.35)}
+.mega{font-size:clamp(2.5rem,6.4vw,6.8rem);max-width:16ch}
+.risca{position:relative;color:var(--coral);white-space:nowrap}
+.risca::after{content:"";position:absolute;left:0;right:0;bottom:.02em;height:.1em;border-radius:9px;background:var(--coral);transform-origin:left;transform:scaleX(0);animation:traco .7s .95s cubic-bezier(.3,1,.4,1) forwards}
+@keyframes traco{to{transform:scaleX(1)}}
+.nomes{font-weight:700;opacity:.85;font-size:1.05rem}
+.fita-loop{position:relative;overflow:hidden;padding:.8rem 0;-webkit-mask-image:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent);mask-image:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent)}
+.fita-loop .trilho{display:flex;width:max-content;animation:rola 30s linear infinite}
+.fita-loop .casa{margin-right:.5rem}
+@keyframes rola{to{transform:translateX(-50%)}}
+.cabeca-capa{position:absolute;left:50%;top:.35rem;bottom:.35rem;width:4.3rem;transform:translateX(-50%);border-radius:14px;box-shadow:0 0 0 3px var(--ambar),0 0 34px rgba(255,182,46,.55)}
+
+/* ---------- 2 roteiro ---------- */
+.trilha{position:relative;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1.4rem}
+.trilha::before{content:"";position:absolute;left:10%;right:10%;top:3.1rem;height:4px;background:repeating-linear-gradient(90deg,#c4b79c 0 14px,transparent 14px 26px);animation:formiga 1s linear infinite}
+@keyframes formiga{to{background-position:26px 0}}
+.parada{position:relative;z-index:1;background:#fff;border-radius:26px;padding:1.4rem;display:flex;flex-direction:column;gap:.6rem;box-shadow:0 7px 0 var(--cor),inset 0 0 0 2px #ece2cf;min-width:0}
+.parada .num{width:3.4rem;height:3.4rem;border-radius:50%;display:grid;place-items:center;background:var(--cor);color:#12100c;font-family:var(--display);font-size:1.8rem;font-weight:800}
+.parada h3{font-size:clamp(1.5rem,2.4vw,2.4rem)}
+.parada p{line-height:1.4;color:var(--tinta2)}
+.parada .ico{position:absolute;right:1.2rem;top:1.2rem;width:3.4rem;height:3.4rem}
+.quem-chip{align-self:flex-start;margin-top:auto;border-radius:999px;padding:.28rem .8rem;font-size:.82rem;font-weight:700;background:#f4efe5;box-shadow:inset 0 0 0 2px var(--cor)}
+
+/* ---------- 3 algoritmo ---------- */
+.receita{list-style:none;background:#fffdf6;border-radius:22px;padding:1.1rem 1.5rem;box-shadow:0 7px 0 #e0d2b8,inset 0 0 0 2px #eadfc8;transform:rotate(-1.3deg)}
+.receita li{display:flex;gap:.75rem;align-items:flex-start;padding:.6rem .5rem;margin:0 -.5rem;border-bottom:2px dashed #eadfc8;font-size:1.12rem;line-height:1.35;border-radius:10px}
+.receita li:last-child{border-bottom:0}
+.receita .r-tit{font-family:var(--display);font-weight:800;font-size:1.6rem;border-bottom:3px solid var(--tinta)}
+.ok-b{flex:none;width:1.6rem;height:1.6rem;border-radius:50%;box-shadow:inset 0 0 0 2px #c8b99d;position:relative;margin-top:.05rem}
+.ok-b::after{content:"";position:absolute;inset:0;border-radius:50%;background:#2fae5c url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M5 12l5 5 9-10' fill='none' stroke='white' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/68% no-repeat;transform:scale(0)}
+.cena.on .ok-b::after{animation:marca .45s var(--d) cubic-bezier(.3,1.6,.5,1) forwards}
+@keyframes marca{to{transform:scale(1)}}
+.laco .ok-b::after{background-color:#e39a00}
+.cena.on .laco{animation:loopLi 1.6s 2.9s ease-in-out infinite}
+@keyframes loopLi{50%{background:rgba(255,182,46,.22)}}
+.repete{margin-left:auto;flex:none;align-self:center;font-family:var(--mono);font-size:.78rem;font-weight:700;color:#fff;background:var(--coral);border-radius:999px;padding:.2rem .6rem;animation:pulsa 1.4s ease-in-out infinite}
+.lado-dir{display:flex;flex-direction:column;gap:1.2rem}
+.marco{border-left:5px solid var(--cor);padding:.3rem 0 .3rem 1rem}
+.marco>b{display:block;font-family:var(--display);font-size:2.6rem;line-height:1;color:var(--cor)}
+.marco p{font-size:1.08rem;line-height:1.4;margin-top:.25rem}
+.sublinha{background:linear-gradient(transparent 62%,rgba(255,182,46,.6) 62%)}
+
+/* ---------- 4 partes da máquina ---------- */
+.maquina{display:flex;flex-direction:column;align-items:center;gap:.4rem}
+.mq-cab{display:flex;flex-direction:column;align-items:center;gap:.1rem;animation:flutua 2.2s ease-in-out infinite;transition:filter .3s}
+.mq-cab svg{width:3.4rem}
+.mq-cab span{font-family:var(--mono);font-size:.72rem;opacity:.8}
+.mq-fita{display:flex;gap:.45rem;align-items:center;padding:.6rem .8rem;border-radius:18px;transition:box-shadow .3s,background .3s}
+.mq-fita .casa{--w:3.9rem;font-size:1.8rem}
+.mq-fita .casa.foco{box-shadow:0 0 0 3px var(--ambar),0 4px 0 #b6a88f}
+.mq-fita .reti{font-size:1.8rem;opacity:.5;letter-spacing:.1em}
+.mq-baixo{display:flex;gap:1rem;flex-wrap:wrap;justify-content:center;margin-top:.7rem}
+.mq-regras,.mq-estado{border-radius:16px;padding:.8rem 1rem;background:rgba(255,255,255,.06);box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.15);transition:box-shadow .3s,background .3s}
+.mq-regras{display:flex;flex-direction:column;gap:.3rem;font-size:.95rem}
+.mq-regras code{background:rgba(255,255,255,.14);border-radius:6px;padding:0 .35rem}
+.mq-estado{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.2rem;min-width:8rem}
+.mq-estado span{font-family:var(--mono);font-size:.72rem;opacity:.7}
+.mq-estado b{font-family:var(--mono);font-size:1.4rem;color:var(--ambar)}
+.maquina .acesa{box-shadow:0 0 0 3px var(--ambar),0 0 40px rgba(255,182,46,.45)!important;background:rgba(255,182,46,.1)}
+.maquina .mq-cab.acesa{box-shadow:none!important;background:none;filter:drop-shadow(0 0 14px rgba(255,182,46,1))}
+.parte{border-radius:18px;padding:1rem 1.1rem;background:rgba(255,255,255,.06);box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.12);transition:box-shadow .3s,background .3s,opacity .45s,transform .6s}
+.parte b{display:block;font-family:var(--display);font-size:1.4rem;color:var(--ambar);margin-bottom:.25rem}
+.parte p{line-height:1.4;opacity:.9}
+.parte.acesa{box-shadow:inset 0 0 0 2px var(--ambar);background:rgba(255,182,46,.12)}
+
+/* ---------- 5 máquina rodando ---------- */
+.mt-wrap{--w:4.4rem;--g:.55rem}
+.mt-barra{display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap}
+.mt-conta{font-family:var(--mono);font-size:1.5rem}
+.mt-conta small{opacity:.6;font-size:.75em}
+.mt-conta b{color:var(--ciano)}
+.mt-palco{display:flex;justify-content:center;overflow-x:auto;padding:.3rem 0 .6rem}
+.mt-fita-wrap{position:relative;padding-top:5.4rem}
+.mt-fita{display:flex;gap:var(--g)}
+.mt-fita .casa{width:var(--w);height:var(--w);font-size:2rem}
+.mt-cab{position:absolute;top:0;left:calc(var(--i,0) * (var(--w) + var(--g)));width:var(--w);display:flex;flex-direction:column;align-items:center;transition:left .55s cubic-bezier(.4,1.3,.5,1)}
+.mt-cab svg{width:92%}
+.mt-estado{font-family:var(--mono);font-size:.75rem;font-weight:700;padding:.15rem .55rem;border-radius:999px;background:var(--ambar);color:#1d1404;margin-bottom:.3rem;white-space:nowrap;transition:background .3s}
+.mt-estado.fim{background:var(--ciano);color:#062b27}
+.casa.escreveu{animation:escreve .6s cubic-bezier(.3,1.5,.5,1)}
+@keyframes escreve{0%{background:var(--ambar);transform:translateY(-12px) scale(1.12)}100%{transform:none}}
+.mt-wrap.pronto .mt-fita .casa:not(.vazia){background:#d6fff8;box-shadow:0 4px 0 #2a9e90}
+.regras{display:flex;flex-direction:column;gap:.55rem}
+.regra{display:flex;align-items:center;gap:.8rem;padding:.55rem .9rem;border-radius:14px;background:rgba(255,255,255,.05);box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.1);transition:background .3s,box-shadow .3s,transform .3s}
+.regra.on{background:rgba(255,182,46,.18);box-shadow:inset 0 0 0 2px var(--ambar);transform:translateX(8px)}
+.regra .se{font-family:var(--mono);font-size:.8rem;opacity:.7}
+.regra small{opacity:.7}
+.casa.mini{--w:2.3rem;font-size:1.15rem;box-shadow:0 3px 0 #b6a88f}
+.mt-lado{display:flex;flex-direction:column;gap:.7rem}
+.mt-msg{font-size:1.3rem;line-height:1.4;min-height:3.9em}
+
+/* ---------- 6 tese ---------- */
+.orbita{position:relative;width:min(100%,31rem);aspect-ratio:1;margin-inline:auto}
+.orbita .raios{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.raios line{stroke:rgba(46,211,191,.8);stroke-width:.55;stroke-dasharray:1.6 2.2;animation:flui 1s linear infinite}
+@keyframes flui{to{stroke-dashoffset:3.8}}
+.hub{position:absolute;left:50%;top:50%;width:37%;aspect-ratio:1;border-radius:50%;transform:translate(-50%,-50%);display:grid;place-items:center;align-content:center;gap:.25rem;text-align:center;padding:.6rem;background:radial-gradient(circle at 35% 30%,#2a3a6a,#121831);box-shadow:0 0 0 3px var(--ciano),0 0 50px rgba(46,211,191,.35);animation:brilhoHub 2.6s ease-in-out infinite}
+@keyframes brilhoHub{50%{box-shadow:0 0 0 3px var(--ciano),0 0 90px rgba(46,211,191,.65)}}
+.hub svg{width:58%}
+.hub b{font-family:var(--display);font-size:clamp(.8rem,1.25vw,1.1rem);line-height:1.05}
+.bolha{position:absolute;transform:translate(-50%,-50%);width:max-content;max-width:9.5rem}
+.bolha>div{border-radius:16px;padding:.5rem .8rem;background:#1a2244;box-shadow:inset 0 0 0 1.5px rgba(46,211,191,.5);text-align:center;font-weight:700;font-size:.9rem;line-height:1.2}
+.tese-txt{display:flex;flex-direction:column;gap:1.1rem}
+
+/* ---------- 7 por que tese ---------- */
+.comparar{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:1.5rem;align-items:center;max-width:60rem;margin-inline:auto;width:100%}
+.nuvem,.caixa-exata{min-height:10.5rem;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.4rem;text-align:center;padding:1.4rem}
+.nuvem{background:#fff;border-radius:58% 42% 55% 45%/52% 60% 40% 48%;box-shadow:0 8px 0 #e2d5bc;animation:morfa 5s ease-in-out infinite}
+@keyframes morfa{50%{border-radius:42% 58% 45% 55%/60% 42% 58% 40%}}
+.caixa-exata{color:#eef1ff;border-radius:10px;box-shadow:0 0 0 3px #2a9e90,0 8px 0 #0a0e1d;background:linear-gradient(rgba(46,211,191,.13) 1px,transparent 1px) 0 0/16px 16px,linear-gradient(90deg,rgba(46,211,191,.13) 1px,transparent 1px) 0 0/16px 16px,#141a30}
+.nuvem b,.caixa-exata b{font-family:var(--display);font-size:clamp(1.4rem,2.4vw,2.2rem);line-height:1.05}
+.nuvem small,.caixa-exata small{opacity:.7}
+.igual{font-family:var(--display);font-weight:800;font-size:4.5rem;color:var(--coral);display:flex;align-items:baseline;animation:balanca 1.6s ease-in-out infinite}
+.igual span{font-size:2.6rem}
+@keyframes balanca{0%,100%{transform:rotate(-6deg)}50%{transform:rotate(6deg)}}
+.corrente{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center;justify-content:center}
+.corrente .elo{border-radius:999px;padding:.5rem 1rem;background:#fff;font-weight:700;box-shadow:inset 0 0 0 2px #2a9e90}
+.corrente i{font-style:normal;font-size:1.4rem;color:#2a9e90}
+.vis .elo{animation:acende .6s var(--d) both}
+@keyframes acende{0%{opacity:.15;transform:scale(.85)}60%{transform:scale(1.08);box-shadow:inset 0 0 0 2px #2a9e90,0 0 0 6px rgba(46,211,191,.35)}100%{opacity:1;transform:none}}
+.corrente .peq{flex-basis:100%;text-align:center;font-size:1rem}
+.contador-anos{display:flex;align-items:center;justify-content:center;gap:1rem}
+.contador-anos b{font-family:var(--display);font-size:4.4rem;line-height:1;color:#14897b;font-variant-numeric:tabular-nums}
+.contador-anos span{max-width:24ch;font-weight:700;line-height:1.3}
+
+/* ---------- 8 corrida ---------- */
+.pista{display:grid;grid-template-columns:minmax(0,1fr) 5.2rem;align-items:stretch}
+.raias{display:flex;flex-direction:column;gap:.8rem;padding:.4rem 0}
+.raia{position:relative;height:4rem;border-radius:12px 0 0 12px;background:repeating-linear-gradient(90deg,rgba(255,255,255,.06) 0 46px,transparent 46px 92px)}
+.corredor{position:absolute;left:0;top:50%;transform:translate(0,-50%);transition:left var(--t) cubic-bezier(.55,0,.8,.4),transform var(--t) cubic-bezier(.55,0,.8,.4)}
+.corredor span{display:block;padding:.65rem 1.1rem;border-radius:12px;background:var(--cor);color:#111;font-weight:700;white-space:nowrap;box-shadow:0 4px 0 rgba(0,0,0,.3)}
+.pista.ativo .corredor{left:100%;transform:translate(-100%,-50%)}
+.pista.ativo .corredor span{animation:bate .45s var(--t) both}
+@keyframes bate{0%{transform:none}30%{transform:translateX(-14px) rotate(-3deg)}60%{transform:translateX(4px)}100%{transform:none}}
+.muro{border-radius:0 14px 14px 0;background:repeating-linear-gradient(45deg,#ff5f57 0 14px,#7a1c1c 14px 28px);display:grid;place-items:center;box-shadow:0 0 30px rgba(255,95,87,.4)}
+.muro span{writing-mode:vertical-rl;transform:rotate(180deg);font-family:var(--display);font-weight:800;color:#fff;letter-spacing:.05em;text-shadow:0 2px 0 rgba(0,0,0,.45);font-size:1rem;background:rgba(0,0,0,.35);padding:.6rem .2rem;border-radius:8px}
+
+/* ---------- 9 decisor sim/não ---------- */
+.decisor{display:grid;grid-template-columns:minmax(0,1.3fr) auto minmax(0,.8fr);gap:1.5rem;align-items:center}
+.entrada,.saida{display:flex;flex-direction:column;gap:.5rem}
+.entrada-card{background:#fff;border-radius:18px;padding:1.1rem 1.3rem;min-height:6rem;display:flex;align-items:center;font-family:var(--display);font-weight:700;font-size:clamp(1.25rem,2.1vw,2rem);line-height:1.15;box-shadow:0 6px 0 #ddd0b6,inset 0 0 0 2px #ebe1cd}
+.entrada-card.vai{animation:vaiCaixa 1.1s cubic-bezier(.5,0,.7,.4) forwards}
+.entrada-card.volta{animation:sobe .4s both}
+@keyframes vaiCaixa{0%{transform:none;opacity:1}100%{transform:translateX(70%) scale(.25);opacity:0}}
+.caixa-alg{position:relative;width:clamp(9rem,16vw,13rem);aspect-ratio:1;border-radius:28px;background:#1a2040;color:#fff;display:grid;place-items:center;align-content:center;gap:.4rem;box-shadow:inset 0 0 0 3px #39406a,0 12px 0 #0c1022}
+.caixa-alg .eng{width:58%;animation:gira 5s linear infinite}
+.caixa-alg.pensa .eng{animation-duration:.5s}
+.caixa-alg.pensa{animation:treme .4s 2}
+.caixa-alg b{font-family:var(--mono);font-size:.85rem}
+.lampada{height:6rem;border-radius:999px;display:grid;place-items:center;font-family:var(--display);font-weight:800;font-size:2.4rem;background:#e6dccb;color:#a39780;transition:background .3s,color .3s,box-shadow .3s}
+.lampada.sim{background:var(--ciano);color:#062b27;box-shadow:0 0 0 6px rgba(46,211,191,.3),0 0 40px rgba(46,211,191,.6)}
+.lampada.nao{background:var(--coral);color:#fff;box-shadow:0 0 0 6px rgba(255,95,87,.3),0 0 40px rgba(255,95,87,.6)}
+.lampada.pop{animation:pop .5s both}
+.historico{list-style:none;display:flex;flex-direction:column;gap:.45rem;min-height:4rem}
+.historico li{display:flex;justify-content:space-between;gap:1rem;background:#fff;border-radius:12px;padding:.5rem .9rem;box-shadow:inset 0 0 0 1.5px #ebe1cd;animation:sobe .4s both;font-size:1.05rem}
+.historico b{font-family:var(--mono)}
+.historico b.sim,.cSim{color:#14897b}.historico b.nao,.cNao{color:#d23b33}
+
+/* ---------- 10 parênteses ---------- */
+.def{font-size:1.25rem}
+.def u{text-decoration-color:var(--ambar);text-decoration-thickness:3px;text-underline-offset:5px}
+.par-palco{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,.7fr);gap:2rem;align-items:center}
+.par-esq{display:flex;flex-direction:column;gap:1rem}
+.par-fila{display:flex;gap:.6rem;flex-wrap:wrap;min-height:5rem;padding-top:.6rem}
+.par-fila .casa{--w:4.4rem;font-size:2.4rem}
+.casa.atual{box-shadow:0 0 0 4px var(--ambar),0 4px 0 #b6a88f;transform:translateY(-8px)}
+.casa.lida{opacity:.5}
+.casa.ruim{background:var(--coral);color:#fff;opacity:1}
+.par-regras{display:flex;flex-wrap:wrap;gap:.45rem}
+.par-regras span{border-radius:999px;padding:.35rem .8rem;background:rgba(255,255,255,.12);font-size:.95rem}
+.par-regras code{font-weight:700;font-size:1.1rem}
+.par-cont{display:flex;flex-direction:column;align-items:center;gap:.4rem}
+.medidor{position:relative;width:3.4rem;height:11rem;border-radius:14px;background:rgba(0,0,0,.25);box-shadow:inset 0 0 0 2px rgba(255,255,255,.2);overflow:hidden}
+.medidor::after{content:"0";position:absolute;left:0;right:0;bottom:30%;border-top:2px dashed rgba(255,255,255,.6);font-family:var(--mono);font-size:.7rem;text-align:right;padding-right:.25rem}
+.medidor i{position:absolute;left:12%;right:12%;bottom:30%;height:0;border-radius:6px;background:#c6fff6;transition:height .35s,bottom .35s,background .3s}
+.medidor i.neg{background:var(--coral)}
+.cont-num{font-family:var(--display);font-size:3.6rem;line-height:1}
+.cont-num.neg{color:var(--coral)}
+.veredito{border-radius:24px;padding:1.2rem;min-height:8rem;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:.3rem;background:rgba(0,0,0,.22);font-weight:700;font-size:1.1rem}
+.veredito b{font-family:var(--display);font-size:clamp(2.2rem,4vw,3.6rem)}
+.veredito small{font-weight:400;opacity:.88;font-size:.95rem}
+.veredito.sim{background:#c6fff6;color:#06302b;animation:pop .5s both}
+.veredito.nao{background:var(--coral);color:#fff;animation:pop .5s both}
+
+/* ---------- 11 decidível × indecidível ---------- */
+.versus{align-items:stretch}
+.lado-v{border-radius:24px;padding:1.3rem;display:flex;flex-direction:column;gap:.6rem}
+.lado-v.ok{background:rgba(95,211,111,.1);box-shadow:inset 0 0 0 2px var(--verde)}
+.lado-v.nao{background:rgba(255,95,87,.1);box-shadow:inset 0 0 0 2px var(--coral)}
+.lado-v h3{font-size:clamp(1.8rem,3vw,2.8rem)}
+.lado-v.ok,.lado-r.ok{color:inherit}
+.lado-v.ok h3{color:var(--verde)}.lado-v.nao h3{color:#ff8a84}.lado-r.ok h3{color:#7fe9dc}.lado-r.nao h3{color:#ffb0ab}
+.lado-v p{font-size:1.15rem;line-height:1.4}
+.lado-v svg{width:4.5rem;height:4.5rem}
+.lado-v ul{list-style:none;display:flex;flex-direction:column;gap:.35rem}
+.lado-v li{padding:.45rem .8rem;border-radius:12px;background:rgba(255,255,255,.07)}
+.check-path{stroke-dasharray:1;stroke-dashoffset:1}
+.vis .check-path{animation:desenha .6s .3s forwards}
+.tijolo{opacity:0;transform-box:fill-box;transform-origin:center}
+.vis .tijolo{animation:pop .35s var(--d) both}
+
+/* ---------- 12 parada / 25 terminais ---------- */
+.term{border-radius:16px;overflow:hidden;background:#070a14;box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.12),0 16px 40px rgba(0,0,0,.35);display:flex;flex-direction:column;min-width:0}
+.ed-topo,.term-topo{display:flex;align-items:center;gap:.45rem;padding:.55rem .9rem;background:#151b30;font-family:var(--mono);font-size:.78rem;color:rgba(255,255,255,.75)}
+.ed-topo i,.term-topo i{width:.7rem;height:.7rem;border-radius:50%;background:#ff5f57}
+.ed-topo i:nth-child(2),.term-topo i:nth-child(2){background:#ffbd2e}
+.ed-topo i:nth-child(3),.term-topo i:nth-child(3){background:#28c840}
+.ed-topo span,.term-topo span{margin-left:.5rem}
+.codigo.plano{border-radius:0;background:#0d1122;box-shadow:none}
+.saida-term{margin:0;padding:.7rem 1rem;min-height:5.4rem;font-family:var(--mono);font-size:1rem;line-height:1.5;color:#d6dcff;white-space:pre-wrap}
+.status{display:flex;align-items:center;gap:.6rem;padding:.65rem 1rem;font-weight:700;border-top:1px solid rgba(255,255,255,.08);margin-top:auto;min-height:3rem}
+.status.ok{color:var(--verde)}
+.status.roda{color:var(--ambar)}
+.spinner{width:1.1rem;height:1.1rem;border-radius:50%;border:3px solid rgba(255,255,255,.2);border-top-color:var(--ambar);animation:gira .8s linear infinite;flex:none}
+.console{margin:0;padding:1rem;min-height:9.5rem;font-family:var(--mono);font-size:clamp(.8rem,1.12vw,1.05rem);line-height:1.6;white-space:pre-wrap;word-break:break-word;color:#d6dcff}
+.console .cmd{color:#fff}.console .aviso{color:var(--ambar)}.console .erro{color:var(--coral)}.console .trad{color:#8f98c6;font-style:italic}
+.cursor::after{content:"\258B";color:var(--verde);animation:pisca 1s steps(1) infinite}
+
+/* ---------- 13 esperar ---------- */
+.espera-palco{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:1.5rem;align-items:center}
+.relogio{display:flex;align-items:center;gap:1rem}
+.anel{width:5rem;height:5rem;border-radius:50%;border:7px solid rgba(255,255,255,.12);border-top-color:var(--ambar);flex:none}
+.espera-palco.ativo .anel{animation:gira .9s linear infinite}
+.relogio b{display:block;font-family:var(--display);font-size:clamp(2rem,4.2vw,4rem);color:var(--ambar);line-height:1;min-width:7ch}
+.barra-inf{height:16px;border-radius:999px;background:rgba(255,255,255,.1);position:relative;overflow:hidden}
+.barra-inf i{position:absolute;top:0;bottom:0;width:30%;left:-30%;background:linear-gradient(90deg,transparent,var(--ambar),transparent)}
+.espera-palco.ativo .barra-inf i{animation:varre 1.3s linear infinite}
+@keyframes varre{to{left:100%}}
+.balao{position:relative;background:#fff;color:var(--tinta);border-radius:20px;padding:.8rem 1.1rem;font-weight:700;width:15rem;min-height:3.4rem;box-shadow:0 6px 0 rgba(0,0,0,.25)}
+.balao::before{content:"";position:absolute;left:-16px;bottom:10px;width:18px;height:18px;border-radius:50%;background:#fff}
+.balao::after{content:"";position:absolute;left:-30px;bottom:0;width:10px;height:10px;border-radius:50%;background:#fff}
+.balao.troca{animation:pop .4s both}
+.resultado-c{border-radius:20px;padding:1rem 1.2rem;font-size:1.15rem;line-height:1.4}
+.resultado-c.sim{background:rgba(95,211,111,.13);box-shadow:inset 0 0 0 2px var(--verde)}
+.resultado-c.talvez{background:rgba(255,95,87,.13);box-shadow:inset 0 0 0 2px var(--coral)}
+.resultado-c b{display:block;font-family:var(--display);font-size:1.5rem;margin-bottom:.2rem}
+
+/* ---------- 14 frase falsa ---------- */
+.frase-grande{font-size:clamp(2.4rem,min(6.5vw,11vh),6.5rem);font-style:italic}
+.vaivem{display:flex;flex-direction:column;align-items:center;gap:.5rem;width:100%}
+.infinito{width:min(100%,30rem,48vh);height:auto;overflow:visible}
+.infinito text{font-family:var(--display);font-weight:800;font-size:13px;fill:#fff;text-anchor:middle;dominant-baseline:middle;opacity:.9}
+.badge-vf{font-family:var(--display);font-weight:800;font-size:clamp(1.6rem,3vw,2.6rem);padding:.3rem 1.3rem;border-radius:999px;background:rgba(255,255,255,.15)}
+.badge-vf.v{background:var(--verde);color:#08240e;animation:vira .5s both}
+.badge-vf.f{background:#fff;color:#b02a2e;animation:vira2 .5s both}
+@keyframes vira{0%{transform:rotateX(90deg)}100%{transform:none}}
+@keyframes vira2{0%{transform:rotateX(90deg)}100%{transform:none}}
+.vaivem-cap{font-size:1.3rem;min-height:2.9em;max-width:46ch;line-height:1.4}
+.centro-col .frase{max-width:52rem}
+
+/* ---------- 15 programa é texto ---------- */
+.fluxo-txt{display:grid;grid-template-columns:minmax(0,1.5fr) auto minmax(0,.9fr) auto minmax(0,.7fr);gap:1rem;align-items:center}
+.ft-entrada{display:flex;flex-direction:column;gap:.7rem}
+.arquivo{display:flex;align-items:center;gap:.7rem;background:#fff;border-radius:16px;padding:.7rem 1rem;box-shadow:0 5px 0 #e0d2b8,inset 0 0 0 2px #eadfc8;font-family:var(--mono);font-weight:700}
+.arquivo svg{width:2.2rem;flex:none}
+.arquivo small{font-family:var(--texto);font-weight:400;opacity:.7;display:block}
+.ft-seta{font-size:2.6rem;color:#c78a00;font-weight:800;text-align:center;line-height:1}
+.ft-seta small{display:block;font-size:.72rem;font-family:var(--texto);color:var(--tinta2);font-weight:700}
+.ft-mq{display:flex;flex-direction:column;align-items:center;gap:.4rem;background:#1a2040;color:#fff;border-radius:22px;padding:1rem;text-align:center;box-shadow:0 10px 0 #0c1022;transition:box-shadow .4s,opacity .45s,transform .6s}
+.ft-mq svg{width:4rem;animation:gira 4s linear infinite}
+.ft-mq b{font-family:var(--mono);font-size:.92rem}
+.ft-mq.acesa{box-shadow:0 0 0 5px var(--ambar),0 0 40px rgba(255,182,46,.6),0 10px 0 #0c1022}
+.ft-saida{display:flex;flex-direction:column;align-items:center;background:#fff;border-radius:22px;padding:1rem;box-shadow:0 6px 0 #e0d2b8}
+.ft-saida b{font-family:var(--display);font-size:4rem;line-height:1;color:#c78a00}
+
+/* ---------- 16 detector ---------- */
+.det-palco{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1.3fr);gap:1.5rem;align-items:center}
+.prog-card{background:#0a0d1a;border-radius:18px;padding:1rem 1.2rem;box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.15);min-height:7rem;display:flex;align-items:center}
+.prog-card pre{margin:0;font-family:var(--mono);font-size:clamp(.9rem,1.3vw,1.25rem);line-height:1.6;color:#e6e9ff}
+.prog-card.vazio pre{opacity:.4}
+.prog-card.entra{animation:desliza .6s both}
+.det-seta{font-size:3rem;color:var(--violeta);font-weight:800}
+.detector{position:relative;border-radius:28px;padding:2.2rem 1.6rem 1.4rem;background:linear-gradient(160deg,#30247a,#160f40);box-shadow:0 0 0 3px var(--violeta),0 0 60px rgba(155,139,255,.5);text-align:center;display:flex;flex-direction:column;align-items:center;gap:.6rem;animation:brilho 2.4s ease-in-out infinite}
+@keyframes brilho{50%{box-shadow:0 0 0 3px #cfc6ff,0 0 100px rgba(155,139,255,.8)}}
+.detector.pensa{animation:treme .45s 2,brilho 2.4s ease-in-out infinite}
+.detector code{font-size:1.1rem;color:#cfc6ff}
+.detector>b{font-family:var(--display);font-size:clamp(1.5rem,2.6vw,2.4rem)}
+.tag-suponha{position:absolute;top:-.95rem;left:50%;transform:translateX(-50%) rotate(-2deg);white-space:nowrap;background:var(--ambar);color:#1d1404;font-weight:700;font-size:.85rem;padding:.25rem .8rem;border-radius:999px}
+.lamps{display:flex;gap:.8rem}
+.lamp{font-family:var(--display);font-weight:800;padding:.5rem 1.1rem;border-radius:999px;background:rgba(255,255,255,.1);color:rgba(255,255,255,.45);transition:all .3s}
+.lamp.verde.on{background:var(--verde);color:#08240e;box-shadow:0 0 30px rgba(95,211,111,.8)}
+.lamp.verm.on{background:var(--coral);color:#fff;box-shadow:0 0 30px rgba(255,95,87,.8)}
+.detector small{opacity:.7;font-family:var(--mono);font-size:.75rem;letter-spacing:.12em;text-transform:uppercase}
+.det-res{font-size:1.25rem;min-height:1.6em;text-align:center}
+
+/* ---------- 17 do contra ---------- */
+.contra{align-items:start}
+.fluxograma{display:flex;flex-direction:column;align-items:center;gap:.35rem}
+.no{border-radius:16px;padding:.8rem 1.1rem;background:rgba(255,255,255,.08);box-shadow:inset 0 0 0 2px rgba(255,255,255,.22);text-align:center;font-weight:700;line-height:1.3;transition:box-shadow .3s,background .3s,opacity .45s,transform .6s;width:100%}
+.no code{color:#ffd27a}
+.no.pergunta{background:rgba(155,139,255,.22);box-shadow:inset 0 0 0 2px var(--violeta)}
+.no.trava{box-shadow:inset 0 0 0 2px var(--coral)}
+.no.paro{box-shadow:inset 0 0 0 2px var(--verde)}
+.no small{display:block;font-weight:400;opacity:.78;font-size:.85rem}
+.no.acesa{background:rgba(255,182,46,.2);box-shadow:inset 0 0 0 2px var(--ambar),0 0 30px rgba(255,182,46,.35)}
+.seta-b{font-size:1.6rem;opacity:.7;line-height:1}
+.ramos{display:grid;grid-template-columns:1fr 1fr;gap:1rem;width:100%}
+.ramo{display:flex;flex-direction:column;align-items:center;gap:.3rem}
+.rotulo{font-family:var(--mono);font-size:.8rem;font-weight:700;padding:.2rem .6rem;border-radius:999px}
+.rotulo.verde{background:var(--verde);color:#08240e}.rotulo.verm{background:var(--coral);color:#fff}
+.icone-grande{display:block;font-size:2rem;line-height:1}
+.no.trava .icone-grande{color:var(--coral);animation:pulsa 1s ease-in-out infinite}
+.no.paro .icone-grande{color:var(--verde)}
+.codigo.grande{font-size:clamp(.88rem,1.3vw,1.28rem)}
+
+/* ---------- 18 paradoxo ---------- */
+.chamada{display:flex;flex-direction:column;align-items:center;gap:.5rem;text-align:center}
+.chamada code{font-size:clamp(1.6rem,3.4vw,3.2rem);font-weight:700;background:rgba(0,0,0,.3);border-radius:16px;padding:.4rem 1.2rem;box-shadow:inset 0 0 0 2px rgba(255,255,255,.25)}
+.chamada span{font-size:1.15rem;opacity:.9}
+.casos{display:grid;grid-template-columns:1fr 1fr;gap:1.6rem}
+.caso{display:flex;flex-direction:column;gap:.4rem;border-radius:22px;padding:1rem 1.1rem;background:rgba(0,0,0,.22);box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.15)}
+.caso h3{font-size:1.5rem;opacity:.9}
+.elo-c{border-radius:14px;padding:.7rem 1rem;background:rgba(255,255,255,.1);font-size:1.15rem;line-height:1.35}
+.elo-c.erro{background:#fff;color:#c4262c;font-family:var(--display);font-weight:800;font-size:1.5rem;text-align:center}
+.seta-c{text-align:center;font-size:1.4rem;opacity:.7;line-height:1}
+.tag{font-family:var(--display);font-weight:800;padding:.1rem .6rem;border-radius:999px;white-space:nowrap}
+.tag.verde{background:var(--verde);color:#08240e}.tag.verm{background:#fff;color:#c4262c}
+.carimbo-pos{position:absolute;inset:0;display:grid;place-items:center;pointer-events:none;z-index:5}
+.carimbo{font-family:var(--display);font-weight:800;font-size:clamp(2.8rem,8.5vw,7.5rem);color:#fff;border:.1em solid #fff;border-radius:.2em;padding:.05em .35em;background:rgba(176,42,46,.92);transform:rotate(-10deg);box-shadow:0 20px 60px rgba(0,0,0,.5)}
+.carimbo-pos.vis .carimbo{animation:carimba .55s cubic-bezier(.3,1.6,.5,1) both}
+
+/* ---------- 19 conclusão ---------- */
+.quebra{position:relative;width:min(100%,34rem);height:9rem;margin:0 auto 2.4rem}
+.q-camada{position:absolute;inset:0;transition:transform .9s cubic-bezier(.3,1.4,.5,1)}
+.q-conteudo{position:absolute;inset:0;border-radius:24px;display:grid;place-items:center;align-content:center;gap:.4rem;background:linear-gradient(160deg,#30247a,#160f40);box-shadow:inset 0 0 0 3px var(--violeta);text-align:center}
+.q-conteudo code{color:#cfc6ff}
+.q-conteudo b{font-family:var(--display);font-size:clamp(1.4rem,2.6vw,2.3rem)}
+.q-esq{clip-path:polygon(0 0,50% 0,45% 28%,54% 52%,46% 76%,51% 100%,0 100%)}
+.q-dir{clip-path:polygon(50% 0,100% 0,100% 100%,51% 100%,46% 76%,54% 52%,45% 28%)}
+.quebra.ativo .q-esq{transform:translate(-26px,12px) rotate(-7deg)}
+.quebra.ativo .q-dir{transform:translate(26px,16px) rotate(6deg)}
+.quebra.ativo::after{content:"";position:absolute;inset:-30%;background:radial-gradient(circle,rgba(255,255,255,.8),transparent 55%);animation:flash .7s both;pointer-events:none}
+@keyframes flash{from{opacity:1}to{opacity:0}}
+.trilha-prova{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center;justify-content:center}
+.trilha-prova span{border-radius:999px;padding:.45rem .95rem;background:rgba(255,255,255,.08);box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.2);font-weight:700;font-size:.95rem}
+.trilha-prova span.destaque{background:var(--B);color:#1d1404;box-shadow:none}
+.trilha-prova i{font-style:normal;opacity:.6}
+
+/* ---------- 20 compilador ---------- */
+.pipeline{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1.2rem;align-items:stretch}
+.etapa{position:relative;border-radius:20px;padding:1rem;background:rgba(255,255,255,.07);box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.16);display:flex;flex-direction:column;gap:.55rem;min-height:15rem;min-width:0}
+.etapa small{opacity:.72;margin-top:-.35rem}
+.etapa:not(:last-child)::after{content:"\2192";position:absolute;right:-1.05rem;top:50%;transform:translateY(-50%);font-size:1.4rem;color:#cfc6ff;z-index:2}
+.tokens{display:flex;flex-wrap:wrap;gap:.35rem;align-content:flex-start}
+.token{font-family:var(--mono);font-weight:700;padding:.3rem .6rem;border-radius:8px;background:var(--cor);color:#111;opacity:0}
+.vis .token{animation:pop .5s var(--d) both}
+.token.id{--cor:#7fe9dc}.token.op{--cor:#ffd27a}.token.pt{--cor:#cfc6ff}
+.arvore{width:100%;max-height:10rem}
+.arvore line{stroke:#cfc6ff;stroke-width:1.5;stroke-dasharray:1;stroke-dashoffset:1}
+.vis .arvore line{animation:desenha .6s var(--d) forwards}
+.arvore g.nd{opacity:0;transform-box:fill-box;transform-origin:center}
+.vis .arvore g.nd{animation:pop .4s var(--d) both}
+.arvore circle,.arvore rect{fill:#2b2266;stroke:#cfc6ff;stroke-width:1.5}
+.arvore text{fill:#fff;font-family:var(--mono);font-size:9px;text-anchor:middle;dominant-baseline:central;font-weight:700}
+.bits-saida{height:9rem;overflow:hidden;border-radius:12px;background:#070a14;padding:.5rem .7rem;font-family:var(--mono);font-size:.88rem;color:var(--verde);line-height:1.5;-webkit-mask-image:linear-gradient(transparent,#000 18%,#000 82%,transparent);mask-image:linear-gradient(transparent,#000 18%,#000 82%,transparent)}
+.bits-saida div{white-space:pre}
+.vis .bits-saida div{animation:sobeBits 7s linear infinite}
+@keyframes sobeBits{to{transform:translateY(-50%)}}
+
+/* ---------- 21 erros ---------- */
+.editor{border-radius:18px;overflow:hidden;background:#0a0d1a;box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.12),0 20px 50px rgba(0,0,0,.35)}
+.ed-linha{display:flex;align-items:center;flex-wrap:wrap;gap:.4rem 1rem;padding:.4rem 1rem;font-family:var(--mono);font-size:clamp(.95rem,1.45vw,1.4rem)}
+.ed-linha .num{width:1.6rem;text-align:right;color:#59618c;flex:none}
+.cod{white-space:pre}
+.cod.ativo{text-decoration:underline wavy var(--coral) 2px;text-underline-offset:7px;text-decoration-skip-ink:none}
+.dica-erro{font-family:var(--texto);font-size:.85rem;font-weight:700;background:var(--coral);color:#fff;border-radius:8px;padding:.2rem .6rem}
+
+/* ---------- 22 dúvidas ---------- */
+.duvidas{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem}
+.duvida{position:relative;border-radius:20px;padding:1.1rem 4rem 1.1rem 1.2rem;background:rgba(255,255,255,.07);box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.15);display:flex;flex-direction:column;gap:.4rem}
+.duvida b{font-family:var(--display);font-size:clamp(1.15rem,1.8vw,1.6rem);line-height:1.15}
+.duvida p{opacity:.86;line-height:1.4}
+.duvida .q{position:absolute;right:1rem;top:.4rem;font-family:var(--display);font-weight:800;font-size:3.2rem;color:var(--coral);opacity:0}
+.duvida.vis .q{animation:carimba .5s .25s cubic-bezier(.3,1.6,.5,1) both}
+.codigo.mini{font-size:.82rem;padding:.55rem .8rem;margin-top:.2rem}
+
+/* ---------- 23 collatz ---------- */
+.co-regras{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center}
+.co-regras span{background:#fff;border-radius:999px;padding:.45rem .95rem;box-shadow:inset 0 0 0 2px #ebe1cd;font-weight:700}
+.co-regras i{font-style:normal;opacity:.6}
+.collatz{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,2fr);gap:1.5rem;align-items:stretch}
+.co-lado{display:flex;flex-direction:column;gap:.8rem}
+.co-num b{display:block;font-family:var(--display);font-size:2.4rem;line-height:1}
+.co-num b.grande{font-size:clamp(2.6rem,min(5vw,9vh),5rem);color:#c4262c;font-variant-numeric:tabular-nums}
+.co-mini{display:flex;gap:1.2rem;font-size:1rem;flex-wrap:wrap}
+.co-mini b{font-family:var(--mono)}
+.co-fim{align-self:flex-start;background:#14897b;color:#fff;font-weight:700;border-radius:999px;padding:.3rem .9rem;opacity:0;transform:scale(.6);transition:all .4s cubic-bezier(.3,1.6,.5,1)}
+.co-fim.on{opacity:1;transform:none}
+.grafico{background:#fff;border-radius:22px;padding:1rem;box-shadow:0 6px 0 #e0d2b8,inset 0 0 0 2px #ebe1cd;display:flex;align-items:center;min-width:0}
+.grafico svg{width:100%;height:auto;max-height:36vh;display:block}
+
+/* ---------- 24 rice ---------- */
+.rice{display:grid;grid-template-columns:1fr 1fr;gap:1.4rem}
+.lado-r{border-radius:24px;padding:1.2rem 1.3rem;display:flex;flex-direction:column;gap:.6rem}
+.lado-r.ok{background:rgba(46,211,191,.12);box-shadow:inset 0 0 0 2px var(--ciano)}
+.lado-r.nao{background:rgba(255,95,87,.12);box-shadow:inset 0 0 0 2px var(--coral)}
+.lado-r h3{font-size:clamp(1.3rem,2.2vw,2rem)}
+.lado-r ul{list-style:none;display:flex;flex-direction:column;gap:.3rem;font-size:1.08rem}
+.lado-r li::before{content:"\2022  ";opacity:.6}
+.lado-r svg{width:100%;height:6.5rem}
+.selo-r{align-self:flex-start;border-radius:999px;padding:.3rem .9rem;font-weight:700}
+.lado-r.ok .selo-r{background:var(--ciano);color:#062b27}.lado-r.nao .selo-r{background:var(--coral);color:#fff}
+.lupa{animation:varreLupa 3.2s ease-in-out infinite}
+@keyframes varreLupa{0%,100%{transform:translateX(0)}50%{transform:translateX(160px)}}
+.neblina{transform-box:fill-box;transform-origin:center;animation:gira 6s linear infinite}
+.neblina.n2{animation-duration:9s;animation-direction:reverse}
+.interroga{animation:aparece 2.4s ease-in-out infinite}
+@keyframes aparece{0%,100%{opacity:.15}50%{opacity:.95}}
+
+/* ---------- 25 estratégias ---------- */
+.estrategia{border-radius:20px;padding:1rem 1.1rem;background:rgba(155,139,255,.14);box-shadow:inset 0 0 0 1.5px rgba(155,139,255,.5)}
+.estrategia b{display:block;font-family:var(--display);font-size:1.3rem;margin-bottom:.3rem}
+.estrategia p{opacity:.88;line-height:1.4}
+
+/* ---------- 26 resumo ---------- */
+.resposta{display:flex;flex-direction:column;align-items:center;gap:.2rem;text-align:center}
+.resposta span{font-size:1.3rem;font-weight:700;opacity:.8}
+.resposta b{font-family:var(--display);font-size:clamp(4rem,10vw,9rem);line-height:.9;color:#14897b}
+.resposta.vis b{animation:pop .6s .2s both}
+.resposta em{font-style:normal;font-weight:700;font-size:1.2rem}
+.refs{max-width:80ch}
+
+@media (max-width:900px){
+  .grade-2,.grade-3,.decisor,.par-palco,.collatz,.rice,.casos,.duvidas,.pipeline,.trilha,.versus,.comparar,.det-palco,.espera-palco,.fluxo-txt{grid-template-columns:minmax(0,1fr)!important}
+  .grade-4{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .mt-wrap{--w:3rem;--g:.35rem}
+  .mt-fita .casa{font-size:1.4rem}
+  .trilha::before,.etapa::after{display:none}
+  .igual,.det-seta,.ft-seta{transform:rotate(90deg)}
+  .mq-fita .casa{--w:2.6rem;font-size:1.2rem}
+  .balao{width:auto}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+}
+</style>
+</head>
+<body>
+
+<div id="barra"></div>
+<div id="quem"><i><svg viewBox="0 0 24 24" fill="#10131f"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0" fill="none" stroke="#10131f" stroke-width="2.2"/><rect x="11" y="18" width="2" height="4"/></svg></i><b id="quemNome"></b><span id="quemParte"></span></div>
+
+<main id="palco">
+
+<!-- ================= INTEGRANTE 1 — CHURCH-TURING ================= -->
+
+<!-- 1 CAPA -->
+<section class="cena noite" data-id="capa" data-quem="A" data-nota="Abra com a pergunta da capa. Diga que existe sim um problema assim, e que vocês vão provar. Apresente o grupo. (→ avança · N esconde as notas · F tela cheia · E troca os nomes)">
+  <div class="bits" aria-hidden="true"></div>
+  <div class="miolo">
+    <span class="selo" data-a>Teoria da Computação · Ciência da Computação</span>
+    <h1 class="mega" data-a style="--d:.15s">Existe algo que <span class="risca">nenhum</span> computador consegue resolver?</h1>
+    <p class="lead" data-a style="--d:.4s">Tese de Church-Turing · Decidibilidade · O problema do compilador</p>
+    <div class="fita-loop" data-a style="--d:.6s" aria-hidden="true"><div class="trilho" id="trilhoCapa"></div><div class="cabeca-capa"></div></div>
+    <p class="nomes" data-a style="--d:.8s"><span data-nome="A"></span> · <span data-nome="B"></span> · <span data-nome="C"></span></p>
+  </div>
+</section>
+
+<!-- 2 ROTEIRO -->
+<section class="cena papel" data-id="roteiro" data-quem="A" data-nota="Aperte → três vezes. Fale: primeiro eu mostro o que é computar; depois o colega mostra o que dá e o que não dá para resolver; e o último mostra como isso afeta o compilador.">
+  <div class="miolo">
+    <div class="topo"><span class="etiqueta" data-a>O caminho de hoje</span><h2 class="titulo-m" data-a style="--d:.1s">Três perguntas, uma depois da outra</h2></div>
+    <div class="trilha">
+      <div class="parada" data-f="1" data-fx="pop" style="--cor:var(--A)">
+        <svg class="ico" viewBox="0 0 48 48"><rect x="3" y="26" width="42" height="14" rx="3" fill="#e9fbf8" stroke="#2a9e90" stroke-width="2"/><path d="M17 26v14M31 26v14" stroke="#2a9e90" stroke-width="2"/><path d="M24 22l-6-10h12z" fill="#2a9e90"/></svg>
+        <span class="num">1</span><h3>O que é computar?</h3><p>A Tese de Church-Turing e a máquina que define o que é uma "receita".</p><span class="quem-chip" data-nome="A"></span></div>
+      <div class="parada" data-f="2" data-fx="pop" style="--cor:var(--B)">
+        <svg class="ico" viewBox="0 0 48 48"><circle cx="16" cy="24" r="11" fill="#e3fbe6" stroke="#2fae5c" stroke-width="2"/><path d="M11 24l4 4 7-8" fill="none" stroke="#2fae5c" stroke-width="3" stroke-linecap="round"/><circle cx="34" cy="24" r="11" fill="#ffe7e5" stroke="#d23b33" stroke-width="2"/><path d="M30 20l8 8M38 20l-8 8" stroke="#d23b33" stroke-width="3" stroke-linecap="round"/></svg>
+        <span class="num">2</span><h3>O que dá para resolver?</h3><p>Decidível, indecidível e a prova do Problema da Parada.</p><span class="quem-chip" data-nome="B"></span></div>
+      <div class="parada" data-f="3" data-fx="pop" style="--cor:var(--C)">
+        <svg class="ico" viewBox="0 0 48 48"><rect x="4" y="8" width="40" height="32" rx="6" fill="#efecff" stroke="#6c5ce7" stroke-width="2"/><path d="M18 18l-6 6 6 6M30 18l6 6-6 6M26 16l-4 16" fill="none" stroke="#6c5ce7" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span class="num">3</span><h3>E o compilador com isso?</h3><p>O que ele sempre consegue checar e o que nunca vai conseguir garantir.</p><span class="quem-chip" data-nome="C"></span></div>
+    </div>
+  </div>
+</section>
+
+<!-- 3 ALGORITMO -->
+<section class="cena papel" data-id="algoritmo" data-quem="A" data-nota="Algoritmo = receita: passos claros que qualquer um segue sem pensar. Mostre o passo 4, que se repete (guardem isso). → 1928: Hilbert pergunta se existe uma receita mecânica para qualquer pergunta da lógica. → 1936: Church e Turing dizem que não; para provar, precisaram definir exatamente o que é receita.">
+  <div class="miolo">
+    <div class="topo"><span class="etiqueta" data-a>Antes de existir computador</span><h2 class="titulo-m" data-a style="--d:.1s">Algoritmo é uma <span class="sublinha">receita</span></h2></div>
+    <div class="grade-2">
+      <div data-a style="--an:pop;--d:.2s">
+        <ol class="receita">
+          <li class="r-tit">Receita de bolo</li>
+          <li style="--d:.8s"><span class="ok-b"></span>Misture farinha, ovos e açúcar.</li>
+          <li style="--d:1.3s"><span class="ok-b"></span>Despeje na forma.</li>
+          <li style="--d:1.8s"><span class="ok-b"></span>Asse por 40 minutos.</li>
+          <li class="laco" style="--d:2.3s"><span class="ok-b"></span><span>Espete um palito. Saiu sujo? Mais 5 minutos e <b>volte para este passo</b>.</span><span class="repete">&#8634; repete</span></li>
+        </ol>
+      </div>
+      <div class="lado-dir">
+        <p class="lead" data-a style="--d:.35s"><b>Algoritmo</b> = passos claros que qualquer pessoa (ou máquina) segue <b>sem precisar pensar</b>.</p>
+        <div class="marco" data-f="1" style="--cor:#2a7fd4"><b>1928</b><p>O matemático David Hilbert pergunta: existe uma receita mecânica que responda <i>qualquer</i> pergunta da lógica?</p></div>
+        <div class="marco" data-f="2" style="--cor:#d23b33"><b>1936</b><p>Alonzo Church e Alan Turing respondem: <b>não existe</b>. Para provar, precisaram definir exatamente o que é uma "receita".</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 4 PARTES DA MÁQUINA -->
+<section class="cena noite" data-id="partes" data-quem="A" data-nota="Turing imaginou uma pessoa fazendo contas com lápis e papel e tirou tudo que não era essencial. → Fita (memória). → Cabeçote (lê, escreve, anda). → Regras (se ler isso, faça aquilo). → Estado (em que parte da tarefa está). Só isso.">
+  <div class="miolo">
+    <div class="topo"><span class="etiqueta" data-a>Alan Turing, 1936</span><h2 class="titulo-m" data-a style="--d:.1s">A Máquina de Turing: um computador de papel</h2></div>
+    <div class="maquina" data-a style="--an:pop;--d:.2s">
+      <div class="mq-cab" data-luz="2"><span>cabeçote</span><svg viewBox="0 0 60 50"><rect x="6" y="2" width="48" height="26" rx="8" fill="#ffb62e"/><path d="M20 28 L30 47 L40 28Z" fill="#ffb62e"/><circle cx="21" cy="15" r="4" fill="#1d1404"/><circle cx="39" cy="15" r="4" fill="#1d1404"/></svg></div>
+      <div class="mq-fita" data-luz="1"><span class="reti">…</span><div class="casa vazia">&#9251;</div><div class="casa">1</div><div class="casa">0</div><div class="casa foco">1</div><div class="casa">1</div><div class="casa">0</div><div class="casa vazia">&#9251;</div><span class="reti">…</span></div>
+      <div class="mq-baixo">
+        <div class="mq-regras" data-luz="3"><b>Regras</b><span>se ler <code>1</code> &rarr; escreve <code>0</code>, anda &larr;</span><span>se ler <code>0</code> &rarr; escreve <code>1</code>, para</span></div>
+        <div class="mq-estado" data-luz="4"><span>estado</span><b>SOMA</b></div>
+      </div>
+    </div>
+    <div class="grade-4">
+      <div class="parte" data-f="1" data-luz="1"><b>Fita</b><p>Infinita, dividida em casinhas. É a memória.</p></div>
+      <div class="parte" data-f="2" data-luz="2"><b>Cabeçote</b><p>Lê e escreve uma casinha por vez. Anda para a esquerda ou para a direita.</p></div>
+      <div class="parte" data-f="3" data-luz="3"><b>Regras</b><p>Uma tabela do tipo "se ler isso, faça aquilo".</p></div>
+      <div class="parte" data-f="4" data-luz="4"><b>Estado</b><p>Em que parte da tarefa a máquina está agora.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- 5 MÁQUINA RODANDO -->
+<section class="cena noite" data-id="mt" data-quem="A" data-nota="Cada → é um passo da máquina. Fale: é a conta da escola, com o 'vai um'. Leu 1: escreve 0 e anda para a esquerda (3 vezes). Leu 0: escreve 1 e para. Resultado 1000 = 8, com só três regras. Opcional: clique em 15 + 1 para mostrar a regra da casa vazia.">
+  <div class="miolo mt-wrap">
+    <div class="topo"><span class="etiqueta" data-a>Vendo funcionar · cada &rarr; é um passo</span><h2 class="titulo-m" data-a style="--d:.1s">Somar 1 em binário (o "vai um" da escola)</h2></div>
+    <div class="mt-barra" data-a style="--d:.2s">
+      <div class="linha-btn"><span class="peq">Exemplo:</span><button class="btn on" data-ex="0">7 + 1</button><button class="btn" data-ex="1">11 + 1</button><button class="btn" data-ex="2">15 + 1</button></div>
+      <div class="mt-conta" id="mtConta"></div>
+    </div>
+    <div class="mt-palco" data-a style="--an:pop;--d:.3s">
+      <div class="mt-fita-wrap">
+        <div class="mt-cab" id="mtCab"><span class="mt-estado" id="mtEstado">SOMA</span><svg viewBox="0 0 60 50"><rect x="6" y="2" width="48" height="26" rx="8" fill="#ffb62e"/><path d="M20 28 L30 47 L40 28Z" fill="#ffb62e"/><circle cx="21" cy="15" r="4" fill="#1d1404"/><circle cx="39" cy="15" r="4" fill="#1d1404"/></svg></div>
+        <div class="mt-fita" id="mtFita"></div>
+      </div>
+    </div>
+    <div class="grade-2">
+      <div class="regras" id="mtRegras" data-a style="--d:.4s">
+        <div class="regra"><span class="se">se ler</span><div class="casa mini">1</div><span>&rarr; escreve <b>0</b> e anda <b>&larr;</b> <small>(vai um)</small></span></div>
+        <div class="regra"><span class="se">se ler</span><div class="casa mini">0</div><span>&rarr; escreve <b>1</b> e <b>PARA</b></span></div>
+        <div class="regra"><span class="se">se ler</span><div class="casa mini vazia">&#9251;</div><span>&rarr; escreve <b>1</b> e <b>PARA</b> <small>(casa vazia)</small></span></div>
+      </div>
+      <div class="mt-lado" data-a style="--d:.5s">
+        <span class="etiqueta" id="mtPasso">início</span>
+        <p class="mt-msg" id="mtMsg"></p>
+        <div class="linha-btn"><button class="btn" id="mtRodar">&#9654; Rodar sozinho</button><button class="btn" id="mtReset">&#8634; Recomeçar</button></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 6 TESE -->
+<section class="cena noite" data-id="tese" data-quem="A" data-nota="→ Pense em tudo que faz conta: você com lápis, Python, celular, supercomputador, o cálculo lambda de Church. → A tese: tudo que pode ser calculado seguindo uma receita passo a passo, essa maquininha também calcula.">
+  <div class="miolo">
+    <div class="topo"><span class="etiqueta" data-a>A ideia central</span><h2 class="titulo-m" data-a style="--d:.1s">A Tese de Church-Turing</h2></div>
+    <div class="grade-2">
+      <div class="orbita" data-a style="--an:pop;--d:.2s">
+        <svg class="raios" viewBox="0 0 100 100" data-f="1" aria-hidden="true">
+          <line x1="50" y1="50" x2="50" y2="9"/><line x1="50" y1="50" x2="85.5" y2="29.5"/><line x1="50" y1="50" x2="85.5" y2="70.5"/>
+          <line x1="50" y1="50" x2="50" y2="91"/><line x1="50" y1="50" x2="14.5" y2="70.5"/><line x1="50" y1="50" x2="14.5" y2="29.5"/>
+        </svg>
+        <div class="hub"><svg viewBox="0 0 60 36"><rect x="2" y="16" width="56" height="16" rx="3" fill="#f6f0e2"/><path d="M16 16v16M30 16v16M44 16v16" stroke="#b6a88f" stroke-width="1.5"/><path d="M30 13l-6-10h12z" fill="#ffb62e"/></svg><b>Máquina<br>de Turing</b></div>
+        <div class="bolha" style="left:50%;top:9%"><div data-f="1" data-fx="pop">Você com lápis e papel</div></div>
+        <div class="bolha" style="left:85.5%;top:29.5%"><div data-f="1" data-fx="pop" style="transition-delay:.12s">Python</div></div>
+        <div class="bolha" style="left:85.5%;top:70.5%"><div data-f="1" data-fx="pop" style="transition-delay:.24s">Celular</div></div>
+        <div class="bolha" style="left:50%;top:91%"><div data-f="1" data-fx="pop" style="transition-delay:.36s">Supercomputador</div></div>
+        <div class="bolha" style="left:14.5%;top:70.5%"><div data-f="1" data-fx="pop" style="transition-delay:.48s">Cálculo lambda (Church)</div></div>
+        <div class="bolha" style="left:14.5%;top:29.5%"><div data-f="1" data-fx="pop" style="transition-delay:.6s">Planilha</div></div>
+      </div>
+      <div class="tese-txt">
+        <div class="frase" data-f="2" style="--cor:var(--ciano)"><small>Tese de Church-Turing</small>Tudo que pode ser calculado seguindo uma receita passo a passo, uma Máquina de Turing também consegue calcular.</div>
+        <p class="lead" data-f="2">Ou seja: essa maquininha de papel é tão poderosa quanto qualquer computador que já existiu ou que vai existir.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 7 POR QUE TESE -->
+<section class="cena papel" data-id="porque" data-quem="A" data-nota="'Receita' é ideia do dia a dia (nuvem); Máquina de Turing é definição exata (caixa). Não dá para provar que uma ideia informal é igual a uma definição exata. → Mas todos que definiram 'computável' de outro jeito chegaram no mesmo lugar. → E em 90 anos ninguém achou um contraexemplo.">
+  <div class="miolo">
+    <div class="topo"><span class="etiqueta" data-a>Uma dúvida justa</span><h2 class="titulo-m" data-a style="--d:.1s">Por que "tese" e não "teorema"?</h2></div>
+    <div class="comparar" data-a style="--d:.2s">
+      <div class="nuvem"><span class="etiqueta">ideia do dia a dia</span><b>"Receita"<br>"Algoritmo"</b><small>ninguém definiu com exatidão</small></div>
+      <div class="igual">=<span>?</span></div>
+      <div class="caixa-exata"><span class="etiqueta">definição matemática</span><b>Máquina<br>de Turing</b><small>exata, cheia de detalhes</small></div>
+    </div>
+    <p class="lead centro" data-a style="--d:.35s">Não dá para <b>provar</b> que uma ideia informal é igual a uma definição exata. Dá para juntar <b>evidências</b>.</p>
+    <div class="corrente" data-f="1">
+      <span class="elo" style="--d:0s">Máquina de Turing</span><i>&#8644;</i><span class="elo" style="--d:.25s">Cálculo lambda</span><i>&#8644;</i><span class="elo" style="--d:.5s">Funções recursivas</span><i>&#8644;</i><span class="elo" style="--d:.75s">Python, C, Java…</span>
+      <p class="peq">Todo mundo que tentou definir "computável" de outro jeito chegou exatamente no mesmo lugar.</p>
+    </div>
+    <div class="contador-anos" data-f="2"><b id="anos">0</b><span>anos sem ninguém achar um contraexemplo (desde 1936)</span></div>
+  </div>
+</section>
+
+<!-- 8 MESMO LIMITE -->
+<section class="cena noite" data-id="limite" data-quem="A" data-nota="→ Corrida: chegam em tempos diferentes, mas batem no mesmo muro. → Frase: muda a velocidade, não o limite. → Passagem: mas onde fica esse muro, e o que tem do outro lado? Passe a palavra para o Integrante 2.">
+  <div class="miolo">
+    <div class="topo"><span class="etiqueta" data-a>Consequência</span><h2 class="titulo-m" data-a style="--d:.1s">Todos batem no mesmo muro</h2></div>
+    <div class="pista" data-desde="1" data-a style="--d:.2s">
+      <div class="raias">
+        <div class="raia"><div class="corredor" style="--t:3.2s;--cor:#ffd27a"><span>Celular</span></div></div>
+        <div class="raia"><div class="corredor" style="--t:2s;--cor:#9be7ff"><span>Notebook</span></div></div>
+        <div class="raia"><div class="corredor" style="--t:.9s;--cor:#c7f59a"><span>Supercomputador</span></div></div>
+      </div>
+      <div class="muro"><span>LIMITE DO COMPUTÁVEL</span></div>
+    </div>
+    <div class="frase" data-f="2" style="--cor:var(--A)"><small>Frase para fixar</small>Do celular ao supercomputador, todos têm o mesmo limite. Muda a velocidade, não o limite.</div>
+    <p class="lead" data-f="3">Mas onde fica esse muro? E o que existe do outro lado? <b class="cB">&rarr; <span data-nome="B"></span></b></p>
+  </div>
+</section>
+
+<!-- ================= INTEGRANTE 2 — DECIDIBILIDADE E PARADA ================= -->
+
+<!-- 9 SIM OU NÃO -->
+<section class="cena papel" data-id="sim" data-quem="B" data-passos="3" data-nota="Para a gente, problema = pergunta de sim ou não. Entra uma pergunta, o algoritmo pensa, sai SIM ou NÃO. → 17 é primo? SIM. → 10 é ímpar? NÃO. → Parênteses certinhos? NÃO.">
+  <div class="miolo">
+    <div class="topo"><span class="etiqueta" data-a>Primeiro, uma combinação</span><h2 class="titulo-m" data-a style="--d:.1s">Um "problema" é uma pergunta de <span class="cSim">SIM</span> ou <span class="cNao">NÃO</span></h2></div>
+    <div class="decisor" data-a style="--an:pop;--d:.2s">
+      <div class="entrada"><span class="etiqueta">entrada</span><div class="entrada-card" id="snCard">Uma pergunta entra aqui…</div></div>
+      <div class="caixa-alg" id="snCaixa">
+        <svg class="eng" viewBox="0 0 100 100"><circle cx="50" cy="50" r="33" fill="none" stroke="#ffb62e" stroke-width="13" stroke-dasharray="10.4 7"/><circle cx="50" cy="50" r="24" fill="#ffb62e"/><circle cx="50" cy="50" r="9" fill="#1a2040"/></svg>
+        <b>algoritmo</b>
+      </div>
+      <div class="saida"><span class="etiqueta">saída</span><div class="lampada" id="snLamp">?</div></div>
+    </div>
+    <ul class="historico" id="snHist"></ul>
+  </div>
+</section>
+
+<!-- 10 DECIDÍVEL: PARÊNTESES -->
+<section class="cena ciano" data-id="par" data-quem="B" data-passos="3" data-nota="Decidível = existe um algoritmo que sempre termina e sempre acerta. Abre parêntese soma 1, fecha tira 1. → (()()) termina em 0: SIM. → ())( fica negativo: NÃO. → A fila sempre acaba, então ele sempre termina. O compilador faz exatamente isso.">
+  <div class="miolo">
+    <div class="topo"><span class="etiqueta" data-a>Exemplo de problema decidível</span><h2 class="titulo-m" data-a style="--d:.1s">Os parênteses estão certinhos?</h2>
+      <p class="def" data-a style="--d:.2s"><b>Decidível</b> = existe um algoritmo que <u>sempre termina</u> e <u>sempre acerta</u>.</p></div>
+    <div class="par-palco" data-a style="--an:pop;--d:.3s">
+      <div class="par-esq">
+        <div class="par-fila" id="parFila"></div>
+        <div class="par-regras"><span><code>(</code> soma 1</span><span><code>)</code> tira 1</span><span>ficou negativo &rarr; <b>NÃO</b></span><span>acabou em 0 &rarr; <b>SIM</b></span></div>
+      </div>
+      <div class="par-cont"><span class="etiqueta">contador</span><div class="medidor"><i id="parMed"></i></div><b class="cont-num" id="parNum">0</b></div>
+      <div class="veredito" id="parVer">aguardando…</div>
+    </div>
+    <div class="frase" data-f="3" style="--cor:#c6fff6">A fila de caracteres sempre acaba. Então esse algoritmo <b>sempre termina</b>: o problema é decidível.</div>
+  </div>
+</section>
+
+<!-- 11 DECIDÍVEL × INDECIDÍVEL -->
+<section class="cena noite" data-id="indec" data-quem="B" data-nota="→ Decidível (lembra o que acabamos de ver). → Indecidível: não existe nenhum algoritmo que acerte para todas as entradas. → Não é falta de tecnologia: nem com computador quântico, nem daqui a mil anos.">
+  <div class="miolo">
+    <div class="topo"><span class="etiqueta" data-a>O outro lado do muro</span><h2 class="titulo-m" data-a style="--d:.1s">Decidível &times; indecidível</h2></div>
+    <div class="grade-2 versus">
+      <div class="lado-v ok" data-f="1" data-fx="esq">
+        <svg viewBox="0 0 48 48"><circle cx="24" cy="24" r="21" fill="none" stroke="#5fd36f" stroke-width="3"/><path class="check-path" pathLength="1" d="M14 25l7 7 13-15" fill="none" stroke="#5fd36f" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <h3>Decidível</h3><p>Existe um algoritmo que sempre termina e sempre acerta.</p>
+        <ul><li>Esse número é par?</li><li>Esse número é primo?</li><li>Os parênteses estão certinhos?</li></ul>
+      </div>
+      <div class="lado-v nao" data-f="2" data-fx="dir">
+        <svg viewBox="0 0 48 48">
+          <rect class="tijolo" style="--d:.1s" x="3" y="34" width="20" height="10" rx="2" fill="#ff5f57"/><rect class="tijolo" style="--d:.18s" x="25" y="34" width="20" height="10" rx="2" fill="#ff5f57"/>
+          <rect class="tijolo" style="--d:.26s" x="14" y="22" width="20" height="10" rx="2" fill="#ff8a84"/><rect class="tijolo" style="--d:.34s" x="3" y="22" width="9" height="10" rx="2" fill="#ff8a84"/><rect class="tijolo" style="--d:.42s" x="36" y="22" width="9" height="10" rx="2" fill="#ff8a84"/>
+          <rect class="tijolo" style="--d:.5s" x="3" y="10" width="20" height="10" rx="2" fill="#ff5f57"/><rect class="tijolo" style="--d:.58s" x="25" y="10" width="20" height="10" rx="2" fill="#ff5f57"/>
+        </svg>
+        <h3>Indecidível</h3><p>Não existe <b>nenhum</b> algoritmo que acerte para <b>todas</b> as entradas.</p>
+        <ul><li>O exemplo mais famoso: o <b>Problema da Parada</b></li></ul>
+      </div>
+    </div>
+    <div class="frase" data-f="3" style="--cor:var(--B)">Não é falta de tecnologia. Nem com computador quântico, nem daqui a mil anos. É impossível.</div>
+  </div>
+</section>
+
+<!-- 12 PROBLEMA DA PARADA -->
+<section class="cena noite" data-id="parada" data-quem="B" data-nota="Dado um programa e uma entrada: ele termina ou roda para sempre? → Programa A imprime 0, 1, 2 e termina. → Programa B roda para sempre. → Nesses dois é fácil só olhando. Mas existe um método que funcione para qualquer programa?">
+  <div class="miolo">
+    <div class="topo"><span class="etiqueta" data-a>O problema mais famoso</span><h2 class="titulo-m" data-a style="--d:.1s">O Problema da Parada</h2>
+      <p class="lead" data-a style="--d:.2s">Dado um programa e uma entrada: ele vai <b class="ok">terminar</b> ou vai <b class="ruim">rodar para sempre</b>?</p></div>
+    <div class="grade-2">
+      <div class="term" data-a style="--d:.3s"><div class="term-topo"><i></i><i></i><i></i><span>programa A</span></div>
+        <div class="codigo plano"><span class="ln"><span class="k">for</span> i <span class="k">in</span> <span class="fn">range</span>(<span class="nu">3</span>):</span><span class="ln">    <span class="fn">print</span>(i)</span></div>
+        <pre class="saida-term" id="tA"></pre><div class="status" id="sA">esperando…</div></div>
+      <div class="term" data-a style="--d:.4s"><div class="term-topo"><i></i><i></i><i></i><span>programa B</span></div>
+        <div class="codigo plano"><span class="ln"><span class="k">while</span> <span class="k">True</span>:</span><span class="ln">    <span class="k">pass</span></span></div>
+        <pre class="saida-term" id="tB"></pre><div class="status" id="sB">esperando…</div></div>
+    </div>
+    <div class="frase" data-f="3" style="--cor:var(--B)">Nesses dois é fácil saber só olhando. Mas existe um método que funcione para <b>qualquer</b> programa?</div>
+  </div>
+</section>
+
+<!-- 13 ESPERAR -->
+<section class="cena noite" data-id="espera" data-quem="B" data-nota="A primeira ideia: é só rodar e esperar. → Esperamos 1 minuto, 1 hora, 1 ano… quando desistir? E se parasse no segundo seguinte? → Se parar, a resposta é sim. Se ainda não parou, não dá para saber. → Esperar só responde metade da pergunta.">
+  <div class="miolo">
+    <div class="topo"><span class="etiqueta" data-a>A primeira ideia de todo mundo</span><h2 class="titulo-m" data-a style="--d:.1s">"É só rodar e esperar!" Será?</h2></div>
+    <div class="espera-palco" data-desde="1" data-a style="--an:pop;--d:.2s">
+      <div class="relogio"><div class="anel"></div><div><span class="etiqueta">rodando há</span><b id="esRel">0 segundos</b></div></div>
+      <div class="barra-inf"><i></i></div>
+      <div class="balao" id="esPensa">…</div>
+    </div>
+    <div class="grade-2" data-f="2">
+      <div class="resultado-c sim"><b>Se o programa parar</b>você descobre: a resposta é SIM, ele para.</div>
+      <div class="resultado-c talvez"><b>Se ainda não parou</b>não dá para saber se ele trava ou se para no próximo segundo.</div>
+    </div>
+    <div class="frase" data-f="3" style="--cor:var(--B)"><small>o nome chique disso: semidecidível</small>Esperar só responde metade da pergunta.</div>
+  </div>
+</section>
+
+<!-- 14 ESTA FRASE É FALSA -->
+<section class="cena alerta" data-id="frase" data-quem="B" data-nota="Aquecimento antes da prova. Leia a frase. → Se é verdade, então é falsa; se é falsa, então é verdade. Vai e volta para sempre. → Quando algo fala de si mesmo e faz o contrário, nasce uma contradição. É o truque de Turing. (Opcional: Pinóquio dizendo 'meu nariz vai crescer agora'.)">
+  <div class="miolo centro-col">
+    <span class="etiqueta" data-a>Aquecimento antes da prova</span>
+    <h2 class="frase-grande" data-a style="--d:.1s">"Esta frase é falsa."</h2>
+    <div class="vaivem" data-f="1">
+      <svg class="infinito" viewBox="0 0 200 100" aria-hidden="true">
+        <path id="infPath" d="M100,50 C130,10 190,10 190,50 C190,90 130,90 100,50 C70,10 10,10 10,50 C10,90 70,90 100,50 Z" fill="none" stroke="rgba(255,255,255,.35)" stroke-width="2.5" stroke-dasharray="4 5"/>
+        <text x="150" y="50">VERDADE</text><text x="50" y="50">FALSA</text>
+        <circle r="7" fill="#ffb62e" stroke="#fff" stroke-width="2.5"><animateMotion id="frMov" dur="4.8s" repeatCount="indefinite" begin="indefinite"><mpath href="#infPath"/></animateMotion></circle>
+      </svg>
+      <div class="badge-vf" id="frBadge">?</div>
+      <p class="vaivem-cap" id="frCap"></p>
+    </div>
+    <div class="frase" data-f="2" style="--cor:#ffd9d6">Quando algo fala de si mesmo e faz o contrário, nasce uma contradição. É esse o truque de Turing.</div>
+  </div>
+</section>
+
+<!-- 15 PROGRAMA É SÓ TEXTO -->
+<section class="cena papel" data-id="texto" data-quem="B" data-nota="Segundo truque: programa é só texto. → O código é só um arquivo. → Dou o próprio arquivo para ele: deu 4 palavras. → O GCC é compilado pelo próprio GCC. → Então um programa pode receber até ele mesmo como entrada.">
+  <div class="miolo">
+    <div class="topo"><span class="etiqueta" data-a>Segundo truque</span><h2 class="titulo-m" data-a style="--d:.1s">Programa é só texto</h2></div>
+    <div class="fluxo-txt">
+      <div class="ft-entrada">
+        <div class="codigo" data-a style="--d:.2s"><span class="ln"><span class="k">def</span> <span class="fn">contar_palavras</span>(texto):</span><span class="ln">    <span class="k">return</span> <span class="fn">len</span>(texto.<span class="fn">split</span>())</span></div>
+        <div class="arquivo" data-f="1" data-fx="pop"><svg viewBox="0 0 32 40"><path d="M3 3h18l8 8v26H3z" fill="#fff" stroke="#1c1916" stroke-width="2"/><path d="M21 3v8h8" fill="none" stroke="#1c1916" stroke-width="2"/><path d="M8 18h16M8 23h16M8 28h11" stroke="#c78a00" stroke-width="2"/></svg><div>contar_palavras.py<small>é só um arquivo de texto</small></div></div>
+      </div>
+      <div class="ft-seta" data-f="2">&rarr;<small>o próprio código</small></div>
+      <div class="ft-mq" data-f="2" data-luz="4"><svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="33" fill="none" stroke="#ffb62e" stroke-width="13" stroke-dasharray="10.4 7"/><circle cx="50" cy="50" r="24" fill="#ffb62e"/><circle cx="50" cy="50" r="9" fill="#1a2040"/></svg><b>contar_palavras</b></div>
+      <div class="ft-seta" data-f="2">&rarr;</div>
+      <div class="ft-saida" data-f="2"><b>4</b><span>palavras</span></div>
+    </div>
+    <div class="grade-2">
+      <div class="card" data-f="3"><b>Na vida real:</b> o compilador GCC é compilado… pelo próprio GCC.</div>
+      <div class="frase" data-f="4" style="--cor:var(--B)">&#8634; Um programa pode receber até <b>ele mesmo</b> como entrada.</div>
+    </div>
+  </div>
+</section>
+
+<!-- 16 DETECTOR -->
+<section class="cena violeta" data-id="det" data-quem="B" data-passos="3" data-nota="A prova, passo 1. → Vamos fingir, só por um minuto, que existe um detector chamado 'para': recebe qualquer programa e responde PARA ou TRAVA, e nunca erra. → Programa A: PARA. → Programa B: TRAVA.">
+  <div class="miolo">
+    <div class="topo"><span class="etiqueta" data-a>A prova · passo 1 de 3</span><h2 class="titulo-m" data-a style="--d:.1s">Suponha que existe o detector perfeito</h2></div>
+    <div class="det-palco">
+      <div class="prog-card vazio" id="deCard"><pre>(nenhum programa ainda)</pre></div>
+      <div class="det-seta">&rarr;</div>
+      <div data-f="1" data-fx="pop">
+        <div class="detector" id="deBox">
+          <span class="tag-suponha">só por um minuto, vamos fingir</span>
+          <code>para(programa, entrada)</code>
+          <b>DETECTOR PERFEITO</b>
+          <div class="lamps"><span class="lamp verde" id="dePara">PARA</span><span class="lamp verm" id="deTrava">TRAVA</span></div>
+          <small>nunca erra</small>
+        </div>
+      </div>
+    </div>
+    <p class="det-res" id="deRes">&nbsp;</p>
+  </div>
+</section>
+
+<!-- 17 PROGRAMA DO CONTRA -->
+<section class="cena violeta" data-id="contra" data-quem="B" data-nota="Passo 2: com o detector, crio o do_contra. → Recebe um programa p. → Pergunta ao detector: p para se receber ele mesmo? → Se disser PARA, ele trava de propósito. → Se disser TRAVA, ele para. → Ele sempre faz o oposto do que o detector previu.">
+  <div class="miolo">
+    <div class="topo"><span class="etiqueta" data-a>A prova · passo 2 de 3</span><h2 class="titulo-m" data-a style="--d:.1s">Agora eu crio o "programa do contra"</h2></div>
+    <div class="grade-2 contra">
+      <div class="fluxograma">
+        <div class="no" data-f="1" data-luz="1">recebe um programa <code>p</code></div>
+        <div class="seta-b" data-f="2">&darr;</div>
+        <div class="no pergunta" data-f="2" data-luz="2">pergunta ao detector:<br>"<code>p</code> para se receber ele mesmo?"</div>
+        <div class="ramos">
+          <div class="ramo" data-f="3"><span class="rotulo verde">diz PARA</span><span class="seta-b">&darr;</span><div class="no trava" data-luz="3"><span class="icone-grande">&infin;</span>então eu <b>TRAVO</b><small>(loop infinito de propósito)</small></div></div>
+          <div class="ramo" data-f="4"><span class="rotulo verm">diz TRAVA</span><span class="seta-b">&darr;</span><div class="no paro" data-luz="4"><span class="icone-grande">&#10004;</span>então eu <b>PARO</b><small>(termina na hora)</small></div></div>
+        </div>
+      </div>
+      <div class="codigo grande"><span class="ln" data-f="1" data-luz="1"><span class="k">def</span> <span class="fn">do_contra</span>(p):</span><span class="ln" data-f="2" data-luz="2">    <span class="k">if</span> <span class="fn">para</span>(p, p):    <span class="co"># detector diz PARA?</span></span><span class="ln" data-f="3" data-luz="3">        <span class="k">while</span> <span class="k">True</span>:   <span class="co"># então eu travo</span></span><span class="ln" data-f="3" data-luz="3">            <span class="k">pass</span></span><span class="ln" data-f="4" data-luz="4">    <span class="k">else</span>:</span><span class="ln" data-f="4" data-luz="4">        <span class="k">return</span>        <span class="co"># então eu paro</span></span></div>
+    </div>
+    <div class="frase" data-f="5" style="--cor:var(--B)">Ele sempre faz o <b>oposto</b> do que o detector previu.</div>
+  </div>
+</section>
+
+<!-- 18 PARADOXO -->
+<section class="cena alerta" data-id="paradoxo" data-quem="B" data-nota="O ponto alto: fale devagar. E se eu der o do_contra para ele mesmo? Só existem dois casos. → Caso 1 (3 toques): detector diz PARA; do_contra faz o oposto e trava; o detector errou. → Caso 2 (3 toques): detector diz TRAVA; do_contra faz o oposto e para; errou de novo. → Contradição!">
+  <div class="miolo">
+    <div class="topo"><span class="etiqueta" data-a>A prova · passo 3 de 3</span><h2 class="titulo-m" data-a style="--d:.1s">E se o do contra receber ele mesmo?</h2></div>
+    <div class="chamada" data-a style="--an:pop;--d:.25s"><code>do_contra(do_contra)</code><span>O detector precisa responder: "o do_contra para se receber ele mesmo?"</span></div>
+    <div class="casos">
+      <div class="caso"><h3>Caso 1</h3>
+        <div class="elo-c" data-f="1">O detector responde: <span class="tag verde">PARA</span></div>
+        <div class="seta-c" data-f="2">&darr;</div>
+        <div class="elo-c" data-f="2">O do contra faz o oposto: <span class="tag verm">TRAVA</span></div>
+        <div class="seta-c" data-f="3">&darr;</div>
+        <div class="elo-c erro" data-f="3" data-fx="pop">&#10007; O detector errou!</div>
+      </div>
+      <div class="caso"><h3>Caso 2</h3>
+        <div class="elo-c" data-f="4">O detector responde: <span class="tag verm">TRAVA</span></div>
+        <div class="seta-c" data-f="5">&darr;</div>
+        <div class="elo-c" data-f="5">O do contra faz o oposto: <span class="tag verde">PARA</span></div>
+        <div class="seta-c" data-f="6">&darr;</div>
+        <div class="elo-c erro" data-f="6" data-fx="pop">&#10007; Errou de novo!</div>
+      </div>
+    </div>
+    <div class="carimbo-pos" data-f="7"><div class="carimbo">CONTRADIÇÃO</div></div>
+  </div>
+</section>
+
+<!-- 19 CONCLUSÃO -->
+<section class="cena noite" data-id="conclusao" data-quem="B" data-nota="→ O detector quebra: supus que ele nunca erra e cheguei numa contradição, então ele não pode existir. → Isso é prova por contradição (ou por absurdo); Turing provou em 1936. → Frase para fixar e passagem: quem sofre com isso todo dia? O compilador. Passe para o Integrante 3.">
+  <div class="miolo">
+    <div class="topo"><span class="etiqueta" data-a>Conclusão</span><h2 class="titulo-m" data-a style="--d:.1s">O detector perfeito <span class="ruim">não pode existir</span></h2></div>
+    <div class="quebra" data-desde="1" data-a style="--an:pop;--d:.2s">
+      <div class="q-camada q-esq"><div class="q-conteudo"><code>para(programa, entrada)</code><b>DETECTOR PERFEITO</b></div></div>
+      <div class="q-camada q-dir"><div class="q-conteudo"><code>para(programa, entrada)</code><b>DETECTOR PERFEITO</b></div></div>
+    </div>
+    <div class="trilha-prova" data-f="2"><span>1. supus que o detector existe</span><i>&rarr;</i><span>2. criei o do contra</span><i>&rarr;</i><span>3. cheguei numa contradição</span><i>&rarr;</i><span class="destaque">a suposição é falsa</span></div>
+    <p class="lead centro" data-f="2">Isso se chama <b>prova por contradição</b> (ou por absurdo). O Problema da Parada é <b>indecidível</b>: Alan Turing provou isso em 1936.</p>
+    <div class="frase" data-f="3" style="--cor:var(--B)"><small>Frase para fixar</small>Existem perguntas que nenhum computador jamais vai conseguir responder.</div>
+    <p class="lead" data-f="3">E quem sofre com isso todo dia? <b class="cC">O compilador &rarr; <span data-nome="C"></span></b></p>
+  </div>
+</section>
+
+<!-- ================= INTEGRANTE 3 — O COMPILADOR ================= -->
+
+<!-- 20 COMPILADOR -->
+<section class="cena violeta" data-id="compilador" data-quem="C" data-nota="O compilador traduz o código para o computador entender e procura erros no caminho. → Separa as palavras (análise léxica). → Monta a estrutura em árvore (análise sintática). → Gera o código de máquina, zeros e uns.">
+  <div class="miolo">
+    <div class="topo"><span class="etiqueta" data-a>A aplicação no dia a dia</span><h2 class="titulo-m" data-a style="--d:.1s">O que é um compilador?</h2><p class="lead" data-a style="--d:.2s">Ele traduz o seu código para a língua do computador e procura erros no caminho.</p></div>
+    <div class="pipeline">
+      <div class="etapa" data-a style="--d:.3s"><span class="etiqueta">seu código</span><div class="codigo"><span class="ln">soma = a + b;</span></div></div>
+      <div class="etapa" data-f="1"><span class="etiqueta">1 · separa as palavras</span><small>análise léxica</small>
+        <div class="tokens"><span class="token id" style="--d:.1s">soma</span><span class="token op" style="--d:.25s">=</span><span class="token id" style="--d:.4s">a</span><span class="token op" style="--d:.55s">+</span><span class="token id" style="--d:.7s">b</span><span class="token pt" style="--d:.85s">;</span></div></div>
+      <div class="etapa" data-f="2"><span class="etiqueta">2 · monta a estrutura</span><small>análise sintática</small>
+        <svg class="arvore" viewBox="0 0 130 100" aria-hidden="true">
+          <line pathLength="1" style="--d:.2s" x1="62" y1="16" x2="30" y2="50"/><line pathLength="1" style="--d:.2s" x1="62" y1="16" x2="92" y2="50"/>
+          <line pathLength="1" style="--d:.6s" x1="92" y1="50" x2="74" y2="86"/><line pathLength="1" style="--d:.6s" x1="92" y1="50" x2="112" y2="86"/>
+          <g class="nd" style="--d:0s"><circle cx="62" cy="16" r="10"/><text x="62" y="16">=</text></g>
+          <g class="nd" style="--d:.45s"><rect x="12" y="41" width="36" height="18" rx="6"/><text x="30" y="50">soma</text></g>
+          <g class="nd" style="--d:.45s"><circle cx="92" cy="50" r="10"/><text x="92" y="50">+</text></g>
+          <g class="nd" style="--d:.85s"><circle cx="74" cy="86" r="10"/><text x="74" y="86">a</text></g>
+          <g class="nd" style="--d:.85s"><circle cx="112" cy="86" r="10"/><text x="112" y="86">b</text></g>
+        </svg></div>
+      <div class="etapa" data-f="3"><span class="etiqueta">3 · gera código de máquina</span><small>o que o processador entende</small>
+        <div class="bits-saida"><div>10001011 01000101
+11111000 00000011
+01000101 11111100
+10001001 01000101
+11110100 11000011
+00110001 11000000
+10001011 01000101
+11111000 00000011
+01000101 11111100
+10001001 01000101
+11110100 11000011
+00110001 11000000</div></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- 21 O QUE SEMPRE CONSEGUE -->
+<section class="cena noite" data-id="erros" data-quem="C" data-nota="→ Faltou fechar o parêntese. → Tipo errado. → Palavra escrita errada. → Esses são decidíveis: ele só olha o texto, e a checagem sempre termina. Lembrem do contador de parênteses do Integrante 2.">
+  <div class="miolo">
+    <div class="topo"><span class="etiqueta" data-a>O que ele sempre consegue</span><h2 class="titulo-m" data-a style="--d:.1s">Checar o <span class="cA">texto</span> do código</h2></div>
+    <div class="editor" data-a style="--an:pop;--d:.2s">
+      <div class="ed-topo"><i></i><i></i><i></i><span>Main.java</span></div>
+      <div class="ed-linha"><span class="num">1</span><span class="cod"><span class="k">int</span> idade = <span class="nu">20</span>;</span></div>
+      <div class="ed-linha"><span class="num">2</span><span class="cod" data-desde="1">System.out.<span class="fn">println</span>(<span class="st">"oi"</span>;</span><span class="dica-erro" data-f="1">&#10007; faltou fechar o parêntese</span></div>
+      <div class="ed-linha"><span class="num">3</span><span class="cod" data-desde="2"><span class="k">int</span> nota = <span class="st">"dez"</span>;</span><span class="dica-erro" data-f="2">&#10007; tipo errado: texto onde devia ter número</span></div>
+      <div class="ed-linha"><span class="num">4</span><span class="cod" data-desde="3">retrun idade;</span><span class="dica-erro" data-f="3">&#10007; "retrun"? palavra desconhecida</span></div>
+    </div>
+    <div class="frase" data-f="4" style="--cor:var(--C)">Isso é <b>decidível</b>: ele só olha o texto, e a checagem sempre termina. (Lembra do contador de parênteses?)</div>
+  </div>
+</section>
+
+<!-- 22 O QUE NÃO CONSEGUE -->
+<section class="cena noite" data-id="duvidas" data-quem="C" data-nota="→ O loop termina? → Esse trecho vai rodar? (o código depois de um loop só roda se o loop terminar: Problema da Parada disfarçado) → A variável sempre recebe valor? → É o código mais rápido possível? → Se ele respondesse isso sempre, resolveria o Problema da Parada.">
+  <div class="miolo">
+    <div class="topo"><span class="etiqueta" data-a>O que ele não consegue garantir</span><h2 class="titulo-m" data-a style="--d:.1s">Perguntas sobre o que o código <span class="ruim">faz</span></h2></div>
+    <div class="duvidas">
+      <div class="duvida" data-f="1"><span class="q">?</span><b>Esse loop termina?</b><p>É o próprio Problema da Parada.</p></div>
+      <div class="duvida" data-f="2"><span class="q">?</span><b>Esse trecho vai rodar algum dia?</b><p>O código depois de um loop só roda se o loop terminar. É o Problema da Parada disfarçado.</p><div class="codigo mini"><span class="ln"><span class="k">while</span> (condicao) { … }</span><span class="ln"><span class="fn">print</span>(<span class="st">"chegou aqui?"</span>)</span></div></div>
+      <div class="duvida" data-f="3"><span class="q">?</span><b>A variável sempre recebe valor antes de ser usada?</b><p>Depende de qual caminho o programa vai seguir quando rodar.</p></div>
+      <div class="duvida" data-f="4"><span class="q">?</span><b>Esse é o código mais rápido possível?</b><p>Para saber, teria que entender tudo o que o programa faz.</p></div>
+    </div>
+    <div class="frase" data-f="5" style="--cor:var(--coral)">Se o compilador respondesse isso sempre, ele resolveria o Problema da Parada. Por isso, não consegue.</div>
+  </div>
+</section>
+
+<!-- 23 COLLATZ -->
+<section class="cena papel" data-id="collatz" data-quem="C" data-passos="4" data-nota="Par divide por 2, ímpar vezes 3 mais 1, repete até 1. → Com 6: chega em 1 em 8 passos. → Com 27: sobe até 9.232 e só chega em 1 depois de 111 passos. → Testaram números gigantescos, mas ninguém provou que sempre chega. → Se nem os matemáticos sabem se esse while termina, como o compilador saberia?">
+  <div class="miolo">
+    <div class="topo"><span class="etiqueta" data-a>Um exemplo que ninguém sabe responder</span><h2 class="titulo-m" data-a style="--d:.1s">A conjectura de Collatz</h2></div>
+    <div class="co-regras" data-a style="--d:.2s"><span>Pegue um número</span><i>&rarr;</i><span><b>par</b>: divide por 2</span><span><b>ímpar</b>: &times;3 + 1</span><i>&rarr;</i><span>repita até chegar em <b>1</b></span></div>
+    <div class="collatz">
+      <div class="co-lado" data-a style="--d:.3s">
+        <div class="co-num"><span class="etiqueta">começando em</span><b id="coN">—</b></div>
+        <div class="co-num"><span class="etiqueta">valor agora</span><b id="coVal" class="grande">—</b></div>
+        <div class="co-mini"><span>passos: <b id="coPassos">0</b></span><span>maior valor: <b id="coMax">0</b></span></div>
+        <span class="co-fim" id="coFim">&#10004; chegou em 1</span>
+        <div class="linha-btn"><span class="peq">Testar:</span><button class="btn" data-co="6">6</button><button class="btn" data-co="7">7</button><button class="btn" data-co="27">27</button><button class="btn" data-co="97">97</button></div>
+      </div>
+      <div class="grafico" data-a style="--an:pop;--d:.35s">
+        <svg viewBox="0 0 600 300" aria-label="Gráfico da sequência">
+          <defs><linearGradient id="coGrad" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#ff5f57" stop-opacity=".35"/><stop offset="1" stop-color="#ff5f57" stop-opacity="0"/></linearGradient></defs>
+          <line x1="0" y1="290" x2="600" y2="290" stroke="#d8ccb6" stroke-width="2"/>
+          <polygon id="coArea" fill="url(#coGrad)" points=""/>
+          <polyline id="coLinha" fill="none" stroke="#c4262c" stroke-width="3" stroke-linejoin="round" points=""/>
+          <circle id="coPonto" r="0" fill="#c4262c" stroke="#fff" stroke-width="3"/>
+        </svg>
+      </div>
+    </div>
+    <div class="grade-2">
+      <div class="card" data-f="3"><b>Já testaram números gigantescos</b> e todos chegaram em 1. Mas <b>ninguém provou</b> que sempre chega. (Lothar Collatz, 1937)</div>
+      <div class="frase" data-f="4" style="--cor:var(--C)">Se nem os matemáticos sabem se esse <code>while</code> sempre termina, como o compilador saberia?</div>
+    </div>
+  </div>
+</section>
+
+<!-- 24 RICE -->
+<section class="cena violeta" data-id="rice" data-quem="C" data-nota="→ Como o código está escrito: dá para checar. → O que o código faz quando roda: não dá para garantir. → Teorema de Rice, 1953: qualquer pergunta interessante sobre o que um programa faz é indecidível.">
+  <div class="miolo">
+    <div class="topo"><span class="etiqueta" data-a>Henry Rice, 1953</span><h2 class="titulo-m" data-a style="--d:.1s">O Teorema de Rice, em uma frase</h2></div>
+    <div class="rice">
+      <div class="lado-r ok" data-f="1" data-fx="esq">
+        <svg viewBox="0 0 300 100" aria-hidden="true">
+          <rect x="20" y="18" width="200" height="9" rx="4" fill="rgba(255,255,255,.35)"/><rect x="20" y="38" width="250" height="9" rx="4" fill="rgba(255,255,255,.35)"/><rect x="20" y="58" width="170" height="9" rx="4" fill="rgba(255,255,255,.35)"/><rect x="20" y="78" width="220" height="9" rx="4" fill="rgba(255,255,255,.35)"/>
+          <g class="lupa"><circle cx="50" cy="45" r="24" fill="rgba(46,211,191,.18)" stroke="#2ed3bf" stroke-width="5"/><line x1="67" y1="62" x2="84" y2="80" stroke="#2ed3bf" stroke-width="8" stroke-linecap="round"/></g>
+        </svg>
+        <h3>Como o código está <u>escrito</u></h3>
+        <ul><li>tem erro de digitação?</li><li>os parênteses fecham?</li><li>os tipos combinam?</li></ul>
+        <b class="selo-r">&#10004; dá para checar</b>
+      </div>
+      <div class="lado-r nao" data-f="2" data-fx="dir">
+        <svg viewBox="0 0 300 100" aria-hidden="true">
+          <defs><clipPath id="bola"><circle cx="150" cy="46" r="38"/></clipPath><radialGradient id="vidro" cx=".35" cy=".3"><stop offset="0" stop-color="#e9e4ff"/><stop offset="1" stop-color="#5a46c9"/></radialGradient></defs>
+          <circle cx="150" cy="46" r="38" fill="url(#vidro)"/>
+          <g clip-path="url(#bola)"><ellipse class="neblina" cx="140" cy="50" rx="34" ry="12" fill="rgba(255,255,255,.55)"/><ellipse class="neblina n2" cx="160" cy="40" rx="30" ry="10" fill="rgba(255,255,255,.45)"/></g>
+          <text class="interroga" x="150" y="48" text-anchor="middle" dominant-baseline="middle" font-family="Bricolage Grotesque, sans-serif" font-weight="800" font-size="36" fill="#2b1f6e">?</text>
+          <path d="M122 84 L178 84 L170 96 L130 96 Z" fill="#ff8a84"/>
+        </svg>
+        <h3>O que o código <u>faz</u> quando roda</h3>
+        <ul><li>ele termina?</li><li>ele chega a imprimir "oi"?</li><li>ele devolve o resultado certo?</li></ul>
+        <b class="selo-r">&#10007; não dá para garantir</b>
+      </div>
+    </div>
+    <div class="frase" data-f="3" style="--cor:var(--C)"><small>Teorema de Rice</small>Qualquer pergunta interessante sobre o que um programa faz é indecidível.</div>
+    <p class="peq" data-f="3">"Interessante" = uma propriedade que alguns programas têm e outros não.</p>
+  </div>
+</section>
+
+<!-- 25 COMO SE VIRAM -->
+<section class="cena noite" data-id="term" data-quem="C" data-passos="3" data-nota="→ GCC: repare no 'may' (pode). Ele avisa, não afirma. → Java: só pega casos fáceis, como código logo depois de um while(true). → Três estratégias. O compilador ajuda muito, mas não é vidente.">
+  <div class="miolo">
+    <div class="topo"><span class="etiqueta" data-a>Na prática</span><h2 class="titulo-m" data-a style="--d:.1s">Como os compiladores reais se viram</h2></div>
+    <div class="grade-2">
+      <div class="term" data-a style="--d:.2s"><div class="term-topo"><i></i><i></i><i></i><span>C · GCC</span></div><pre class="console" id="te1"></pre></div>
+      <div class="term" data-a style="--d:.3s"><div class="term-topo"><i></i><i></i><i></i><span>Java · javac</span></div><pre class="console" id="te2"></pre></div>
+    </div>
+    <div class="grade-3">
+      <div class="estrategia" data-f="3"><b>Pegar os casos fáceis</b><p>Código logo depois de um <code>while(true)</code> é fácil de ver.</p></div>
+      <div class="estrategia" data-f="3" style="transition-delay:.15s"><b>Avisar em vez de afirmar</b><p>"Pode estar sem valor": ele diz <i>pode</i>, não <i>está</i>.</p></div>
+      <div class="estrategia" data-f="3" style="transition-delay:.3s"><b>Na dúvida, não arriscar</b><p>Se não tem certeza de que uma otimização é segura, ele não faz.</p></div>
+    </div>
+    <div class="frase" data-f="3" style="--cor:var(--C);transition-delay:.45s"><small>Frase para fixar</small>O compilador ajuda muito, mas não é vidente.</div>
+  </div>
+</section>
+
+<!-- 26 RESUMO -->
+<section class="cena papel" data-id="resumo" data-quem="C" data-nota="→ → → Uma frase de cada parte. → Resposta à pergunta da capa: sim, e a gente provou. → Bônus: teorema do pleno emprego dos projetistas de compiladores.">
+  <div class="miolo">
+    <div class="topo"><span class="etiqueta" data-a>Resumindo</span><h2 class="titulo-m" data-a style="--d:.1s">Três ideias para levar para casa</h2></div>
+    <div class="grade-3">
+      <div class="frase" data-f="1" style="--cor:var(--A)"><small>Church-Turing</small>Do celular ao supercomputador, todos têm o mesmo limite.</div>
+      <div class="frase" data-f="2" style="--cor:var(--B)"><small>Decidibilidade</small>Existem perguntas que nenhum computador jamais vai conseguir responder.</div>
+      <div class="frase" data-f="3" style="--cor:var(--C)"><small>Compilador</small>O compilador ajuda muito, mas não é vidente.</div>
+    </div>
+    <div class="resposta" data-f="4"><span>Existe algo que nenhum computador consegue resolver?</span><b>SIM.</b><em>E a gente acabou de provar.</em></div>
+    <div class="card" data-f="5"><b>Bônus:</b> existe o "teorema do pleno emprego dos projetistas de compiladores". Como nunca existe um compilador perfeito, sempre dá para fazer um melhor.</div>
+  </div>
+</section>
+
+<!-- 27 OBRIGADO -->
+<section class="cena noite" data-id="fim" data-quem="C" data-nota="Obrigado! Abra para perguntas. Cada integrante responde as perguntas da própria parte.">
+  <div class="bits" aria-hidden="true"></div>
+  <div class="miolo centro-col">
+    <h1 class="mega" data-a>Obrigado!</h1>
+    <p class="lead" data-a style="--d:.2s">Perguntas?</p>
+    <p class="nomes" data-a style="--d:.35s"><span data-nome="A"></span> · <span data-nome="B"></span> · <span data-nome="C"></span></p>
+    <p class="peq refs" data-a style="--d:.5s">Referências: A. Turing, "On Computable Numbers" (1936) · A. Church, "An Unsolvable Problem of Elementary Number Theory" (1936) · H. G. Rice, "Classes of Recursively Enumerable Sets and Their Decision Problems" (1953) · M. Sipser, <i>Introdução à Teoria da Computação</i>.</p>
+  </div>
+</section>
+
+</main>
+
+<div id="notas" hidden><b id="notaQuem"></b><span id="notaTxt"></span></div>
+<nav id="doca" aria-label="Navegação">
+  <button id="ant" aria-label="Voltar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M15 5l-7 7 7 7"/></svg></button>
+  <span id="contador">1 / 27</span><span id="pips"></span>
+  <button id="prox" aria-label="Avançar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M9 5l7 7-7 7"/></svg></button>
+  <button id="btnNotas" aria-label="Notas do apresentador"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h4"/></svg></button>
+  <button id="btnRe" aria-label="Recomeçar slide"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 12a8 8 0 1 0 3-6.2"/><path d="M4 4v5h5"/></svg></button>
+  <button id="btnTela" aria-label="Tela cheia"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
+</nav>
+
+<script>
+(()=>{
+"use strict";
+const $=(s,r=document)=>r.querySelector(s),$$=(s,r=document)=>[...r.querySelectorAll(s)];
+const store={get(k,d){try{const v=localStorage.getItem("ctd:"+k);return v==null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem("ctd:"+k,JSON.stringify(v))}catch(e){}}};
+
+/* ===== EDITE AQUI os nomes do grupo (ou aperte E durante a apresentação) ===== */
+const NOMES_PADRAO={A:"Integrante 1",B:"Integrante 2",C:"Integrante 3"};
+const PARTES={A:"Church-Turing",B:"Decidibilidade",C:"O compilador"};
+let EQUIPE=Object.assign({},NOMES_PADRAO,store.get("equipe",{}));
+try{const q=new URLSearchParams(location.search);["A","B","C"].forEach(k=>{const v=q.get(k.toLowerCase());if(v)EQUIPE[k]=v})}catch(e){}
+
+const kit=()=>{const k={ts:[],raf:0,t(f,ms){k.ts.push([0,setTimeout(f,ms)])},i(f,ms){k.ts.push([1,setInterval(f,ms)])},clear(){k.ts.forEach(([t,id])=>t?clearInterval(id):clearTimeout(id));k.ts=[];cancelAnimationFrame(k.raf);k.raf=0}};return k};
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+/* ================= navegação com passos ================= */
+const cenas=$$(".cena"),N=cenas.length;let atual=0;const H={};
+function maxP(c){if(c._max!=null)return c._max;if(c.dataset.passos)return +c.dataset.passos;let m=0;$$("[data-f],[data-desde]",c).forEach(e=>{m=Math.max(m,+(e.dataset.f||e.dataset.desde)||0)});return m}
+function aplica(c,anim){const p=c._p||0;
+  $$("[data-f]",c).forEach(e=>e.classList.toggle("vis",+e.dataset.f<=p));
+  $$("[data-desde]",c).forEach(e=>e.classList.toggle("ativo",+e.dataset.desde<=p));
+  $$("[data-luz]",c).forEach(e=>e.classList.toggle("acesa",e.dataset.luz.split(" ").includes(String(p))));
+  $$("[data-ate]",c).forEach(e=>e.classList.toggle("some",p>+e.dataset.ate));
+  const h=H[c.dataset.id];if(h&&h.passo)h.passo(p,!!anim,c);
+  doca()}
+function ir(n,fim){n=Math.max(0,Math.min(N-1,n));const velha=cenas[atual];const hv=H[velha.dataset.id];if(hv&&hv.sai)hv.sai(velha);
+  velha.classList.remove("on");atual=n;const c=cenas[n];c._max=null;
+  const h=H[c.dataset.id];if(h&&h.entra)h.entra(c);
+  c._p=fim?maxP(c):0;void c.offsetWidth;c.classList.add("on");c.scrollTop=0;aplica(c,false);
+  try{history.replaceState(null,"","#"+(n+1))}catch(e){}}
+function prox(){const c=cenas[atual];if((c._p||0)<maxP(c)){c._p=(c._p||0)+1;aplica(c,true)}else if(atual<N-1)ir(atual+1)}
+function volta(){const c=cenas[atual];if((c._p||0)>0){c._p--;aplica(c,false)}else if(atual>0)ir(atual-1,true)}
+function doca(){const c=cenas[atual],p=c._p||0,m=maxP(c),q=c.dataset.quem||"A";
+  $("#contador").textContent=`${atual+1} / ${N}`;
+  $("#pips").innerHTML=m?Array.from({length:m},(_,i)=>`<i class="${i<p?"on":""}"></i>`).join(""):"";
+  $("#barra").style.width=((atual+(m?p/m:1))/N*100)+"%";
+  document.documentElement.style.setProperty("--atual",`var(--${q})`);
+  $("#quemNome").textContent=EQUIPE[q];$("#quemParte").textContent=PARTES[q];
+  $("#notaQuem").textContent=`Slide ${atual+1} · ${EQUIPE[q]} · ${PARTES[q]}`;$("#notaTxt").textContent=c.dataset.nota||""}
+function pintaNomes(){$$("[data-nome]").forEach(e=>e.textContent=EQUIPE[e.dataset.nome]);doca()}
+function editaNomes(){try{const n={...EQUIPE};["A","B","C"].forEach((k,i)=>{const v=prompt(`Nome de quem apresenta a parte ${i+1} (${PARTES[k]}):`,n[k]);if(v!==null&&v.trim())n[k]=v.trim()});EQUIPE=n;store.set("equipe",n);pintaNomes()}catch(e){}}
+function tela(){try{if(document.fullscreenElement)document.exitFullscreen();else document.documentElement.requestFullscreen().catch(()=>{})}catch(e){}}
+function notas(){$("#notas").hidden=!$("#notas").hidden}
+
+$("#prox").onclick=prox;$("#ant").onclick=volta;$("#btnNotas").onclick=notas;$("#btnTela").onclick=tela;$("#btnRe").onclick=()=>ir(atual);
+document.addEventListener("click",e=>{const b=e.target.closest("button");if(b&&e.detail>0)setTimeout(()=>b.blur(),0)});
+document.addEventListener("keydown",e=>{if(e.target.matches("input,select,textarea")||e.altKey||e.ctrlKey||e.metaKey)return;const k=e.key;
+  if(k==="ArrowRight"||k==="PageDown"||((k===" "||k==="Enter")&&!e.target.matches("button"))){e.preventDefault();prox()}
+  else if(k==="ArrowLeft"||k==="PageUp"||k==="Backspace"){e.preventDefault();volta()}
+  else if(k==="n"||k==="N")notas();else if(k==="f"||k==="F")tela();else if(k==="r"||k==="R")ir(atual);
+  else if(k==="e"||k==="E")editaNomes();
+  else if(k==="q"||k==="Q"){const el=$("#quem");el.hidden=!el.hidden;store.set("semQuem",el.hidden)}
+  else if(k==="Home")ir(0);else if(k==="End")ir(N-1)});
+let sx=null;document.addEventListener("touchstart",e=>{sx=e.target.closest("button,svg,input")?null:e.touches[0].clientX},{passive:true});
+document.addEventListener("touchend",e=>{if(sx==null)return;const dx=e.changedTouches[0].clientX-sx;if(Math.abs(dx)>70)(dx<0?prox:volta)();sx=null});
+
+/* ================= capa e encerramento ================= */
+function encherCapa(){
+  $$(".bits").forEach(b=>{if(b.childElementCount)return;for(let i=0;i<24;i++){const s=document.createElement("span");s.style.left=(i/24*100+Math.random()*3)+"%";s.style.setProperty("--t",(10+Math.random()*12)+"s");s.style.setProperty("--atr",(-Math.random()*20)+"s");s.textContent=Array.from({length:36},()=>Math.random()<.5?"0":"1").join("");b.appendChild(s)}});
+  const tr=$("#trilhoCapa");if(tr&&!tr.childElementCount){const sim=Array.from({length:22},()=>{const r=Math.random();return r<.42?"1":r<.84?"0":""});const h=sim.map(x=>`<div class="casa${x?"":" vazia"}">${x||"&#9251;"}</div>`).join("");tr.innerHTML=h+h}}
+
+/* ================= 5 Máquina de Turing ================= */
+const MT_EX=["0111","1011","1111"];let mtI=0,mtTr=[],mtAuto=0;
+function mtTraca(bits){const t=["␣","␣",...bits.split(""),"␣"];let h=t.length-2,st="SOMA",g=0;
+  const tr=[{t:[...t],h,st,r:-1,w:-1,msg:"Começa no último dígito, no estado SOMA. Aperte → para cada passo."}];
+  while(st==="SOMA"&&g++<40){const s=t[h];
+    if(s==="1"){t[h]="0";const w=h;h--;tr.push({t:[...t],h,st,r:0,w,msg:'Leu 1 → escreve 0 e anda uma casa para a esquerda. É o "vai um".'})}
+    else if(s==="0"){t[h]="1";st="FIM";tr.push({t:[...t],h,st,r:1,w:h,msg:"Leu 0 → escreve 1 e PARA."})}
+    else{t[h]="1";st="FIM";tr.push({t:[...t],h,st,r:2,w:h,msg:"Leu uma casa vazia → escreve 1 e PARA."})}}
+  const res=t.filter(x=>x!=="␣").join("");
+  tr.push({...tr[tr.length-1],r:-1,w:-1,fim:true,res,msg:`Pronto! ${res} em binário é ${parseInt(res,2)}. A máquina fez a conta sozinha, com só três regras.`});return tr}
+function mtRender(p,anim){const e=mtTr[Math.min(p,mtTr.length-1)],fita=$("#mtFita");
+  if(fita.childElementCount!==e.t.length)fita.innerHTML=e.t.map(()=>'<div class="casa"></div>').join("");
+  [...fita.children].forEach((d,i)=>{d.textContent=e.t[i];d.classList.toggle("vazia",e.t[i]==="␣");d.classList.remove("escreveu");if(anim&&i===e.w){void d.offsetWidth;d.classList.add("escreveu")}});
+  $("#mtCab").style.setProperty("--i",e.h);
+  $$("#mtRegras .regra").forEach((r,i)=>r.classList.toggle("on",i===e.r));
+  const es=$("#mtEstado");es.textContent=e.st;es.classList.toggle("fim",e.st==="FIM");
+  $("#mtMsg").textContent=e.msg;$("#mtPasso").textContent=e.fim?"resultado":p===0?"início":`passo ${p} de ${mtTr.length-2}`;
+  const b=MT_EX[mtI];$("#mtConta").innerHTML=`${b} <small>(${parseInt(b,2)})</small> + 1 = ${e.fim?`<b>${e.res} <small>(${parseInt(e.res,2)})</small></b>`:"?"}`;
+  $(".mt-wrap").classList.toggle("pronto",!!e.fim)}
+function paraAuto(){clearInterval(mtAuto);mtAuto=0;$("#mtRodar").innerHTML="&#9654; Rodar sozinho"}
+H.mt={entra(c){mtTr=mtTraca(MT_EX[mtI]);c._max=mtTr.length-1;$("#mtFita").innerHTML="";$$("[data-ex]").forEach(b=>b.classList.toggle("on",+b.dataset.ex===mtI))},
+  passo(p,anim){mtRender(p,anim);if(p>=mtTr.length-1&&mtAuto)paraAuto()},sai(){paraAuto()}};
+$("#mtRodar").onclick=()=>{if(mtAuto)return paraAuto();const c=$('[data-id="mt"]');if(c._p>=c._max){c._p=0;aplica(c,false)}
+  mtAuto=setInterval(()=>{const c=cenas[atual];if(c.dataset.id!=="mt"||c._p>=c._max)return paraAuto();c._p++;aplica(c,true)},1100);$("#mtRodar").innerHTML="&#10074;&#10074; Pausar"};
+$("#mtReset").onclick=()=>{paraAuto();const c=$('[data-id="mt"]');c._p=0;aplica(c,false)};
+$$("[data-ex]").forEach(b=>b.onclick=()=>{paraAuto();mtI=+b.dataset.ex;const c=$('[data-id="mt"]');H.mt.entra(c);c._p=0;aplica(c,false)});
+
+/* ================= 7 contador de anos ================= */
+const kPq=kit();
+H.porque={passo(p,anim){const el=$("#anos"),alvo=new Date().getFullYear()-1936;kPq.clear();if(p<2){el.textContent="0";return}if(!anim){el.textContent=alvo;return}
+  const t0=performance.now();const st=t=>{const k=Math.min(1,(t-t0)/1400);el.textContent=Math.round(alvo*(1-Math.pow(1-k,3)));if(k<1)kPq.raf=requestAnimationFrame(st)};kPq.raf=requestAnimationFrame(st)},sai(){kPq.clear()}};
+
+/* ================= 9 sim ou não ================= */
+const SN=[["O número 17 é primo?",true],["O número 10 é ímpar?",false],["Os parênteses de  ((a+b)  estão certinhos?",false]];const kSN=kit();
+const snItem=x=>`<li><span>${esc(x[0])}</span><b class="${x[1]?"sim":"nao"}">${x[1]?"SIM":"NÃO"}</b></li>`;
+H.sim={passo(p,anim){kSN.clear();const card=$("#snCard"),lamp=$("#snLamp"),cx=$("#snCaixa"),hist=$("#snHist");cx.classList.remove("pensa");
+  if(p===0){card.className="entrada-card";card.textContent="Uma pergunta entra aqui…";lamp.className="lampada";lamp.textContent="?";hist.innerHTML="";return}
+  const x=SN[p-1];card.className="entrada-card";card.textContent=x[0];
+  const fim=()=>{lamp.className="lampada pop "+(x[1]?"sim":"nao");lamp.textContent=x[1]?"SIM":"NÃO";hist.innerHTML=SN.slice(0,p).map(snItem).join("")};
+  if(!anim)return fim();
+  hist.innerHTML=SN.slice(0,p-1).map(snItem).join("");lamp.className="lampada";lamp.textContent="…";void card.offsetWidth;card.classList.add("vai");cx.classList.add("pensa");
+  kSN.t(()=>{cx.classList.remove("pensa");fim();kSN.t(()=>{card.className="entrada-card volta"},350)},1150)},sai(){kSN.clear()}};
+
+/* ================= 10 parênteses ================= */
+const kPar=kit();
+function parCont(n){const num=$("#parNum"),i=$("#parMed");num.textContent=n;num.classList.toggle("neg",n<0);i.classList.toggle("neg",n<0);
+  if(n>=0){i.style.bottom="30%";i.style.height=(n*22)+"%"}else{i.style.bottom=(30+n*22)+"%";i.style.height=(-n*22)+"%"}}
+function parMontar(s){$("#parFila").innerHTML=[...s].map(ch=>`<div class="casa">${ch}</div>`).join("");parCont(0);const v=$("#parVer");v.className="veredito";v.textContent="lendo…"}
+function parRodar(s,anim){kPar.clear();parMontar(s);const cs=$$("#parFila .casa");let i=0,cont=0;
+  const fim=(ok,m)=>{const v=$("#parVer");v.className="veredito "+(ok?"sim":"nao");v.innerHTML=`<b>${ok?"SIM &#10004;":"NÃO &#10007;"}</b><small>${m}</small>`};
+  const passo=()=>{if(i>0){cs[i-1].classList.remove("atual");cs[i-1].classList.add("lida")}
+    if(i>=cs.length){cont===0?fim(true,"acabou a fila com o contador em 0"):fim(false,"sobrou parêntese aberto");return true}
+    const c=cs[i];c.classList.add("atual");cont+=s[i]==="("?1:-1;parCont(cont);i++;
+    if(cont<0){c.classList.add("ruim");fim(false,"fechou um parêntese que nem tinha aberto");return true}return false};
+  if(anim){const loop=()=>{if(!passo())kPar.t(loop,700)};kPar.t(loop,300)}else{while(!passo()){}}}
+H.par={passo(p,anim){if(p===0){kPar.clear();parMontar("(()())");$("#parVer").textContent="aguardando…";return}
+  if(p===1)parRodar("(()())",anim);else if(p===2)parRodar("())(",anim);else if(!anim)parRodar("())(",false)},sai(){kPar.clear()}};
+
+/* ================= 12 problema da parada ================= */
+const kPa=kit();let tB0=0;
+function termA(modo){const pre=$("#tA"),st=$("#sA"),ls=["0","1","2"];
+  if(modo===0){pre.textContent="";st.className="status";st.textContent="esperando…";return}
+  if(modo===1){pre.textContent=ls.join("\n");st.className="status ok";st.innerHTML="&#10004; terminou";return}
+  pre.textContent="";st.className="status roda";st.innerHTML='<span class="spinner"></span> rodando…';
+  ls.forEach((l,j)=>kPa.t(()=>{pre.textContent+=(j?"\n":"")+l},450+j*550));kPa.t(()=>{st.className="status ok";st.innerHTML="&#10004; terminou"},450+3*550)}
+function termB(on){const st=$("#sB"),pre=$("#tB");if(!on){tB0=0;st.className="status";st.textContent="esperando…";pre.textContent="";return}
+  if(!tB0)tB0=Date.now();st.className="status roda";pre.textContent="(nenhuma saída…)";
+  const up=()=>{const s=Math.floor((Date.now()-tB0)/1000);st.innerHTML=`<span class="spinner"></span> rodando há <b>${s} s</b>… e não para`};up();kPa.i(up,500)}
+H.parada={passo(p,anim){kPa.clear();termA(p>=1?(anim&&p===1?2:1):0);termB(p>=2)},sai(){kPa.clear();tB0=0}};
+
+/* ================= 13 esperar ================= */
+const UNI=["1 segundo","10 segundos","1 minuto","10 minutos","1 hora","1 dia","1 semana","1 mês","1 ano","10 anos","100 anos","1 milhão de anos"];
+const PENSA=["Será que para?","Espero mais um pouco?","E se parar daqui a 1 segundo?","Desisto agora?","Já devia ter parado…","Mais um pouquinho…"];
+const kEs=kit();let esOn=false;
+H.espera={passo(p){const rel=$("#esRel"),bal=$("#esPensa");if(p===0){kEs.clear();esOn=false;rel.textContent="0 segundos";bal.textContent="…";return}
+  if(esOn)return;esOn=true;let i=0;
+  const t=()=>{rel.textContent=UNI[i];bal.textContent=i===UNI.length-1?"Ainda não dá para saber!":PENSA[i%PENSA.length];bal.classList.remove("troca");void bal.offsetWidth;bal.classList.add("troca");if(i<UNI.length-1){i++;kEs.t(t,850)}};t()},
+  sai(){kEs.clear();esOn=false}};
+
+/* ================= 14 esta frase é falsa ================= */
+const kFr=kit();let frOn=false;
+H.frase={passo(p){const b=$("#frBadge"),cap=$("#frCap");if(p<1){kFr.clear();frOn=false;b.textContent="?";b.className="badge-vf";cap.innerHTML="";return}
+  if(frOn)return;frOn=true;let v=true;
+  const flip=()=>{b.textContent=v?"VERDADE":"FALSA";b.className="badge-vf "+(v?"v":"f");
+    cap.innerHTML=v?"Se ela é <b>verdade</b>, o que ela diz vale… então ela é <b>falsa</b>.":"Se ela é <b>falsa</b>, ela mentiu sobre ser falsa… então ela é <b>verdade</b>.";v=!v};
+  flip();kFr.i(flip,2400);try{$("#frMov").beginElement()}catch(e){}},sai(){kFr.clear();frOn=false}};
+
+/* ================= 16 detector ================= */
+const kDe=kit();const DE_PR=[{cod:"for i in range(3):\n    print(i)",r:"para"},{cod:"while True:\n    pass",r:"trava"}];
+H.det={passo(p,anim){kDe.clear();const card=$("#deCard"),box=$("#deBox"),lp=$("#dePara"),lt=$("#deTrava"),res=$("#deRes");
+  lp.classList.remove("on");lt.classList.remove("on");box.classList.remove("pensa");res.innerHTML="&nbsp;";
+  if(p<2){card.className="prog-card vazio";card.innerHTML="<pre>(nenhum programa ainda)</pre>";return}
+  const x=DE_PR[p>=3?1:0];card.className="prog-card";card.innerHTML=`<pre>${esc(x.cod)}</pre>`;
+  const acende=()=>{box.classList.remove("pensa");(x.r==="para"?lp:lt).classList.add("on");
+    res.innerHTML=x.r==="para"?'Resposta do detector: <b class="ok">PARA</b> (o programa termina)':'Resposta do detector: <b class="ruim">TRAVA</b> (roda para sempre)'};
+  if(!anim)return acende();void card.offsetWidth;card.classList.add("entra");box.classList.add("pensa");kDe.t(acende,1000)},sai(){kDe.clear()}};
+
+/* ================= 18 contradição ================= */
+H.paradoxo={passo(p,anim,c){if(p===7&&anim){const el=$(".casos",c);el.classList.remove("treme");void el.offsetWidth;el.classList.add("treme")}}};
+
+/* ================= 23 collatz ================= */
+const kCo=kit();
+function coSeq(n){const s=[n];while(n!==1&&s.length<2000){n=n%2?3*n+1:n/2;s.push(n)}return s}
+function coLimpa(){kCo.clear();$("#coLinha").setAttribute("points","");$("#coArea").setAttribute("points","");$("#coPonto").setAttribute("r",0);
+  $("#coN").textContent="—";$("#coVal").textContent="—";$("#coPassos").textContent="0";$("#coMax").textContent="0";$("#coFim").classList.remove("on");$$("[data-co]").forEach(b=>b.classList.remove("on"))}
+function coRodar(n,anim){kCo.clear();const s=coSeq(n),L=s.length,mx=Math.max(...s),W=600,B=290,A=270;
+  const pts=s.map((v,i)=>[(L>1?i/(L-1):0)*W,B-(v/mx)*A]);
+  $("#coN").textContent=n;$$("[data-co]").forEach(b=>b.classList.toggle("on",+b.dataset.co===n));
+  const set=k=>{const pp=pts.slice(0,k+1).map(q=>q[0].toFixed(1)+","+q[1].toFixed(1)).join(" ");
+    $("#coLinha").setAttribute("points",pp);$("#coArea").setAttribute("points",`0,${B} ${pp} ${pts[k][0].toFixed(1)},${B}`);
+    const d=$("#coPonto");d.setAttribute("r",7);d.setAttribute("cx",pts[k][0]);d.setAttribute("cy",pts[k][1]);
+    let m=0;for(let j=0;j<=k;j++)m=Math.max(m,s[j]);
+    $("#coVal").textContent=s[k].toLocaleString("pt-BR");$("#coPassos").textContent=k;$("#coMax").textContent=m.toLocaleString("pt-BR");$("#coFim").classList.toggle("on",k===L-1)};
+  if(!anim)return set(L-1);
+  const dur=Math.min(5500,700+L*42),t0=performance.now();let ult=-1;
+  const st=t=>{const k=Math.min(L-1,Math.floor((t-t0)/dur*L));if(k!==ult){set(k);ult=k}if(k<L-1)kCo.raf=requestAnimationFrame(st)};kCo.raf=requestAnimationFrame(st)}
+H.collatz={passo(p,anim){if(p===0)return coLimpa();if(p===1)coRodar(6,anim);else if(p===2)coRodar(27,anim);else if(!anim)coRodar(27,false)},sai(){kCo.clear()}};
+$$("[data-co]").forEach(b=>b.onclick=()=>coRodar(+b.dataset.co,true));
+
+/* ================= 25 terminais ================= */
+const kTe=kit();
+const TE1=[{t:"$ gcc -O2 -Wall programa.c",c:"cmd"},{t:"programa.c:7:12: warning: 'x' may be used uninitialized",c:"aviso"},{t:'  → em português: "x PODE estar sem valor"',c:"trad"}];
+const TE2=[{t:"$ javac Main.java",c:"cmd"},{t:"Main.java:5: error: unreachable statement",c:"erro"},{t:'  → em português: "esse código nunca vai rodar"',c:"trad"},{t:"  (era um código logo depois de while(true) { })",c:"trad"}];
+function consola(el,ls,modo){const linha=l=>`<span class="${l.c}">${esc(l.t)}</span>`;
+  if(modo===0){el.innerHTML='<span class="cursor"></span>';return}
+  if(modo===1){el.innerHTML=ls.map(linha).join("\n");return}
+  el.innerHTML='<span class="cmd"></span><span class="cursor"></span>';const cmd=el.firstChild,txt=ls[0].t;let i=0;
+  const tick=()=>{cmd.textContent=txt.slice(0,++i);if(i<txt.length)return kTe.t(tick,42);
+    kTe.t(()=>{el.innerHTML=linha(ls[0]);ls.slice(1).forEach((l,j)=>kTe.t(()=>{el.insertAdjacentHTML("beforeend","\n"+linha(l))},300+j*450))},250)};tick()}
+H.term={passo(p,anim){kTe.clear();consola($("#te1"),TE1,p>=1?(anim&&p===1?2:1):0);consola($("#te2"),TE2,p>=2?(anim&&p===2?2:1):0)},sai(){kTe.clear()}};
+
+/* ================= início ================= */
+encherCapa();
+if(store.get("semQuem",false))$("#quem").hidden=true;
+pintaNomes();
+const m=/^#(\d+)$/.exec(location.hash||"");
+ir(m?Math.min(N,Math.max(1,+m[1]))-1:0);
+window.addEventListener("hashchange",()=>{const r=/^#(\d+)$/.exec(location.hash||"");if(r&&+r[1]-1!==atual)ir(+r[1]-1)});
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,346 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0d1120">
+<meta name="robots" content="noindex">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<title>Controle da apresentação</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+:root{
+  --bg:#0d1120;--cor:#2ed3bf;--cor2:#ffb62e;--fs:1.05rem;
+  --texto:"Atkinson Hyperlegible","Segoe UI",system-ui,sans-serif;
+  --display:"Bricolage Grotesque","Trebuchet MS",system-ui,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,Consolas,monospace;
+  color-scheme:dark;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;background:var(--bg);color:#eef1ff;font-family:var(--texto);overscroll-behavior:none;-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit;cursor:pointer;border:0;touch-action:manipulation;-webkit-user-select:none;user-select:none}
+button:focus-visible{outline:3px solid #ffb62e;outline-offset:2px}
+[hidden]{display:none!important}
+@keyframes pisca{50%{opacity:.25}}
+@keyframes sobe{from{transform:translateY(100%)}to{transform:none}}
+@keyframes entra{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
+@keyframes pulsa{50%{box-shadow:inset 0 0 0 2px var(--cor2),0 0 0 5px rgba(255,255,255,.08)}}
+
+/* ---------- entrada (digitar código) ---------- */
+#entrada{min-height:100dvh;display:flex;flex-direction:column;justify-content:center;gap:1rem;padding:calc(24px + env(safe-area-inset-top)) 24px calc(24px + env(safe-area-inset-bottom));max-width:28rem;margin:0 auto}
+#entrada h1{font-family:var(--display);font-weight:800;font-size:2.3rem;line-height:1.02;margin:0}
+#entrada p{margin:0;opacity:.82;line-height:1.45}
+#entrada form{display:flex;flex-direction:column;gap:.8rem;margin-top:.6rem}
+#inCod{width:100%;font-family:var(--mono);font-weight:700;font-size:2.8rem;letter-spacing:.35em;text-indent:.35em;text-align:center;padding:.6rem .4rem;border-radius:18px;border:0;background:#151b33;color:#ffb62e;box-shadow:inset 0 0 0 2px rgba(255,255,255,.15);outline:none}
+#inCod:focus{box-shadow:inset 0 0 0 2px #ffb62e}
+#inCod::placeholder{color:rgba(255,182,46,.25)}
+.bt-grande{width:100%;padding:1rem;border-radius:18px;background:#ffb62e;color:#1d1404;font-weight:700;font-size:1.15rem}
+#entMsg{color:#ff8a84;font-weight:700;min-height:1.4em}
+.ent-dica{font-size:.88rem;opacity:.6!important}
+
+/* ---------- controle ---------- */
+#controle{height:100dvh;display:flex;flex-direction:column;padding:calc(10px + env(safe-area-inset-top)) 14px calc(12px + env(safe-area-inset-bottom))}
+header{display:flex;align-items:center;gap:.5rem;font-size:.85rem;min-height:2.2rem}
+.conexao{display:flex;align-items:center;gap:.45rem;padding:.35rem .75rem;border-radius:999px;background:rgba(255,255,255,.07);font-weight:700}
+.conexao i{width:.6rem;height:.6rem;border-radius:50%;background:#ffb62e;flex:none}
+.conexao[data-st=conectando] i{animation:pisca 1s steps(1) infinite}
+.conexao[data-st=ok] i{background:#5fd36f;box-shadow:0 0 8px #5fd36f}
+.conexao[data-st=off] i{background:#ff5f57}
+.conexao[data-st=off]{color:#ff8a84}
+.sala{font-family:var(--mono);font-size:.75rem;opacity:.6}
+.sala b{opacity:1;color:#fff}
+.relogio{margin-left:auto;font-family:var(--mono);font-weight:700;font-size:1rem;padding:.35rem .8rem;border-radius:999px;background:rgba(255,255,255,.07);font-variant-numeric:tabular-nums}
+.relogio.pausado{color:#ffb62e}
+.relogio.pausado b{animation:pisca 1.2s steps(1) infinite}
+
+main{flex:1;min-height:0;display:flex;flex-direction:column;gap:.55rem;padding:.75rem 0 .65rem}
+.quem{align-self:flex-start;display:flex;gap:.5rem;align-items:baseline;padding:.35rem .95rem;border-radius:999px;background:var(--cor);color:#111;font-weight:700;transition:background .35s;max-width:100%}
+.quem span{font-size:.8rem;opacity:.72;font-weight:400}
+.cab{display:flex;align-items:baseline;gap:.75rem;min-width:0}
+.num{flex:none;font-family:var(--display);font-weight:800;font-size:2.7rem;line-height:.9;color:var(--cor);transition:color .35s}
+.num small{font-size:1.05rem;color:#fff;opacity:.5;font-weight:700}
+#titulo{font-family:var(--display);font-weight:700;font-size:1.25rem;line-height:1.15;margin:0;overflow:hidden;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical}
+.passos{display:flex;align-items:center;gap:.6rem;font-size:.82rem;opacity:.85;min-height:1rem}
+#pips{display:flex;gap:5px;flex-wrap:wrap}
+#pips i{width:10px;height:10px;border-radius:50%;background:rgba(255,255,255,.2);transition:background .25s}
+#pips i.on{background:var(--cor)}
+.aviso{border-radius:14px;padding:.55rem .85rem;background:rgba(255,255,255,.06);box-shadow:inset 3px 0 0 var(--cor2);font-size:.92rem;line-height:1.35;animation:entra .3s both}
+.aviso b{color:var(--cor2)}
+.aviso span{opacity:.6;font-size:.8rem}
+.aviso.forte{background:rgba(255,255,255,.1);box-shadow:inset 0 0 0 2px var(--cor2);animation:pulsa 1.6s ease-in-out infinite}
+.notas{flex:1;min-height:5.5rem;display:flex;flex-direction:column;border-radius:18px;background:#fffbe8;color:#3a2d00;overflow:hidden}
+.notas-topo{display:flex;align-items:center;justify-content:space-between;padding:.45rem .55rem .25rem .9rem;font-family:var(--mono);font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;color:#8a6a00}
+.notas-topo button{background:rgba(0,0,0,.07);color:#5a4500;border-radius:9px;padding:.25rem .6rem;margin-left:.3rem;font-family:var(--texto);font-weight:700;letter-spacing:0;text-transform:none;font-size:.85rem}
+#notaTxt{flex:1;overflow:auto;padding:.15rem .9rem .9rem;font-size:var(--fs);line-height:1.5;-webkit-overflow-scrolling:touch}
+#notaTxt p{margin:0 -.4rem .4rem;padding:.2rem .4rem;border-radius:9px;transition:background .3s,opacity .3s}
+#notaTxt p.ja{opacity:.4}
+#notaTxt p.agora{background:#ffe7a0;box-shadow:inset 3px 0 0 #e39a00;font-weight:700}
+#notaTxt .seta{color:#c78a00;font-weight:700}
+#notaTxt .vazio{opacity:.55;font-style:italic}
+
+footer{display:flex;flex-direction:column;gap:.55rem}
+.linha-mini{display:flex;gap:.55rem}
+.linha-mini button{flex:1;padding:.7rem .5rem;border-radius:14px;background:rgba(255,255,255,.08);font-weight:700;font-size:.9rem}
+.linha-mini button:active{background:rgba(255,255,255,.16)}
+.linha-grande{display:grid;grid-template-columns:1fr 2.3fr;gap:.55rem;height:min(31vh,16rem);min-height:8.5rem}
+.volta,.prox{border-radius:26px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.3rem;transition:transform .08s,box-shadow .08s,background .35s,filter .3s}
+.volta{background:rgba(255,255,255,.1);font-weight:700;font-size:1.1rem;box-shadow:0 5px 0 rgba(0,0,0,.35)}
+.volta svg,.prox svg{width:2rem;height:2rem}
+.prox{background:var(--cor);color:#101010;font-family:var(--display);font-weight:800;font-size:2rem;line-height:1;padding:.6rem .8rem;box-shadow:0 6px 0 rgba(0,0,0,.4);min-width:0}
+.prox svg{width:2.6rem;height:2.6rem}
+.prox small{font-family:var(--texto);font-size:.8rem;font-weight:700;opacity:.72;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;line-height:1.3}
+.prox:active,.prox.toque{transform:translateY(5px);box-shadow:0 1px 0 rgba(0,0,0,.4)}
+.volta:active,.volta.toque{transform:translateY(4px);box-shadow:0 1px 0 rgba(0,0,0,.35)}
+#controle.fraco .prox{filter:saturate(.2) brightness(.75)}
+
+/* ---------- aviso flutuante ---------- */
+#toast{position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 3.4rem);transform:translateX(-50%);z-index:40;width:max-content;max-width:calc(100vw - 32px);padding:.65rem 1rem;border-radius:14px;background:#ff5f57;color:#fff;font-weight:700;font-size:.92rem;line-height:1.35;text-align:center;box-shadow:0 10px 30px rgba(0,0,0,.4);animation:entra .25s both}
+
+/* ---------- lista de slides ---------- */
+#folha{position:fixed;inset:0;z-index:30;background:rgba(0,0,0,.6);display:flex;align-items:flex-end}
+.folha-caixa{width:100%;max-height:84dvh;display:flex;flex-direction:column;background:#141a30;border-radius:24px 24px 0 0;padding:.8rem 1rem calc(1rem + env(safe-area-inset-bottom));animation:sobe .25s ease both}
+.folha-topo{display:flex;justify-content:space-between;align-items:center;padding:.2rem .2rem .5rem}
+.folha-topo b{font-family:var(--display);font-size:1.3rem}
+.folha-topo button{width:2.5rem;height:2.5rem;border-radius:50%;background:rgba(255,255,255,.1);font-size:1.5rem;line-height:1}
+#lista{list-style:none;margin:0;padding:0;overflow:auto;flex:1;-webkit-overflow-scrolling:touch}
+#lista .grupo{font-family:var(--mono);font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;opacity:.6;padding:.8rem .4rem .3rem}
+#lista .vazio{padding:1rem .4rem;opacity:.7}
+#lista button{width:100%;display:flex;align-items:center;gap:.75rem;text-align:left;padding:.6rem .5rem;border-radius:12px;background:transparent;line-height:1.25;font-size:.98rem}
+#lista button.atual{background:rgba(255,255,255,.1);box-shadow:inset 3px 0 0 var(--c)}
+#lista .n{flex:none;width:2.1rem;height:2.1rem;border-radius:50%;display:grid;place-items:center;background:var(--c);color:#111;font-weight:700;font-size:.85rem}
+.folha-rodape{display:flex;gap:.55rem;padding-top:.75rem}
+.folha-rodape button{flex:1;padding:.75rem .5rem;border-radius:14px;background:rgba(255,255,255,.08);font-weight:700;font-size:.88rem}
+
+/* celular deitado */
+@media (orientation:landscape) and (max-height:540px){
+  #controle{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);grid-template-rows:auto minmax(0,1fr);column-gap:14px}
+  header{grid-column:1/-1}
+  main{grid-row:2;padding-bottom:0}
+  footer{grid-row:2;padding-top:.75rem}
+  .linha-grande{flex:1;height:auto;min-height:0}
+  .num{font-size:2rem}
+}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+</style>
+</head>
+<body>
+
+<!-- ============ ENTRADA: digitar o código da sala ============ -->
+<section id="entrada" hidden>
+  <h1>Controle da apresentação</h1>
+  <p>Digite o código que aparece no computador.<br>Na apresentação, aperte <b>C</b> para ver o código e o QR code.</p>
+  <form id="fEntrada" autocomplete="off">
+    <input id="inCod" inputmode="numeric" pattern="[0-9]*" maxlength="6" placeholder="0000" aria-label="Código da sala">
+    <button class="bt-grande" type="submit">Conectar</button>
+  </form>
+  <p id="entMsg"></p>
+  <p class="ent-dica">Vários celulares podem controlar ao mesmo tempo: cada integrante pode passar a própria parte.</p>
+</section>
+
+<!-- ============ CONTROLE ============ -->
+<section id="controle" hidden>
+  <header>
+    <span class="conexao" id="conexao" data-st="conectando"><i></i><span id="conTxt">conectando…</span></span>
+    <span class="sala">sala <b id="salaTxt"></b></span>
+    <button class="relogio" id="relogio" aria-label="Cronômetro: toque para pausar ou continuar">&#9201; <b id="relTxt">00:00</b></button>
+  </header>
+
+  <main>
+    <div class="quem"><b id="quemNome">—</b><span id="quemParte"></span></div>
+    <div class="cab"><span class="num"><span id="numAtual">–</span><small>/<span id="numTotal">–</span></small></span><h1 id="titulo">Conectando…</h1></div>
+    <div class="passos"><div id="pips"></div><span id="passoTxt"></span></div>
+    <div class="aviso" id="aviso" hidden></div>
+    <div class="notas">
+      <div class="notas-topo"><span>o que falar</span><div><button id="fMenos" aria-label="Diminuir letra">A&minus;</button><button id="fMais" aria-label="Aumentar letra">A+</button></div></div>
+      <div id="notaTxt"></div>
+    </div>
+  </main>
+
+  <footer>
+    <div class="linha-mini">
+      <button id="btLista">&#9776; Slides</button>
+      <button id="btReinicia">&#8634; Recomeçar slide</button>
+    </div>
+    <div class="linha-grande">
+      <button class="volta" id="btVolta" aria-label="Voltar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>Voltar</button>
+      <button class="prox" id="btProx" aria-label="Avançar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg>AVANÇAR<small id="proxSub">&nbsp;</small></button>
+    </div>
+  </footer>
+</section>
+
+<!-- ============ LISTA DE SLIDES ============ -->
+<div id="folha" hidden>
+  <div class="folha-caixa" role="dialog" aria-label="Ir para um slide">
+    <div class="folha-topo"><b>Ir para o slide</b><button id="folhaX" aria-label="Fechar">&times;</button></div>
+    <ol id="lista"></ol>
+    <div class="folha-rodape"><button id="btZerar">&#9201; Zerar cronômetro</button><button id="btSair">Trocar código</button></div>
+  </div>
+</div>
+
+<div id="toast" hidden></div>
+
+<script src="config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+(()=>{
+"use strict";
+const $=s=>document.querySelector(s);
+const cfg=window.CONFIG_REMOTO||{};
+const configurado=!!(cfg.SUPABASE_URL&&cfg.SUPABASE_KEY)&&!/SEU-PROJETO|SUA_CHAVE/i.test(cfg.SUPABASE_URL+" "+cfg.SUPABASE_KEY);
+const mem={get(k,d){try{const v=localStorage.getItem("ctl:"+k);return v==null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem("ctl:"+k,JSON.stringify(v))}catch(e){}}};
+const esc=s=>String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const CORES={A:"#2ed3bf",B:"#ffb62e",C:"#9b8bff"};
+const meuId=Math.random().toString(36).slice(2,8);
+
+let sala="",sb=null,ch=null,inscrito=false,telas=0,ultEstado=0,E=null,lista=[],nomes={},partes={};
+let tRetry=0,espera=2000,tSemResp=0,ultToque=0,tToast=0,ultSlide=0;
+
+/* ================= utilidades ================= */
+function vibra(ms){try{navigator.vibrate&&navigator.vibrate(ms)}catch(e){}}
+function toast(msg,ms){const t=$("#toast");t.textContent=msg;t.hidden=false;t.style.animation="none";void t.offsetWidth;t.style.animation="";clearTimeout(tToast);tToast=setTimeout(()=>{t.hidden=true},ms||3200)}
+let wl=null;
+async function acorda(){try{if("wakeLock" in navigator&&document.visibilityState==="visible"&&!wl){wl=await navigator.wakeLock.request("screen");wl.addEventListener("release",()=>{wl=null})}}catch(e){}}
+
+/* ================= cronômetro ================= */
+let rel=mem.get("relogio",{acum:0,ini:0});
+const relMs=()=>rel.acum+(rel.ini?Date.now()-rel.ini:0);
+function relTick(){const s=Math.floor(relMs()/1000),h=Math.floor(s/3600),m=Math.floor(s%3600/60),ss=s%60,p=n=>String(n).padStart(2,"0");
+  $("#relTxt").textContent=(h?h+":"+p(m):p(m))+":"+p(ss);$("#relogio").classList.toggle("pausado",!rel.ini&&rel.acum>0)}
+function relToggle(){if(rel.ini){rel.acum+=Date.now()-rel.ini;rel.ini=0}else rel.ini=Date.now();mem.set("relogio",rel);relTick()}
+function relAutoInicia(){if(!rel.ini&&rel.acum===0){rel.ini=Date.now();mem.set("relogio",rel)}}
+function relZera(){rel={acum:0,ini:0};mem.set("relogio",rel);relTick()}
+setInterval(relTick,500);relTick();
+
+/* ================= telas: entrada × controle ================= */
+function salaDaUrl(){try{return(new URLSearchParams(location.search).get("sala")||"").replace(/\D/g,"").slice(0,6)}catch(e){return""}}
+function mostraEntrada(msg){desconecta();$("#controle").hidden=true;$("#entrada").hidden=false;
+  $("#entMsg").textContent=msg||(configurado?"":"Falta preencher o config.js com a URL e a chave do Supabase.");
+  $("#inCod").value="";setTimeout(()=>{try{$("#inCod").focus()}catch(e){}},80)}
+function entra(s){sala=s;mem.set("sala",s);
+  try{const u=new URL(location.href);u.searchParams.set("sala",s);history.replaceState(null,"",u)}catch(e){}
+  $("#entrada").hidden=true;$("#controle").hidden=false;$("#salaTxt").textContent=s;E=null;lista=[];desenha();conecta()}
+
+/* ================= conexão (Supabase Realtime) ================= */
+function desconecta(){clearTimeout(tRetry);if(ch&&sb){const v=ch;ch=null;try{sb.removeChannel(v)}catch(e){}}ch=null;inscrito=false;telas=0}
+function tentaDeNovo(){clearTimeout(tRetry);tRetry=setTimeout(conecta,espera);espera=Math.min(espera*2,15000)}
+function conecta(){
+  clearTimeout(tRetry);
+  if(!configurado){mostraEntrada("Falta preencher o config.js com a URL e a chave do Supabase.");return}
+  if(!window.supabase||!window.supabase.createClient){inscrito=false;desenha();toast("Não carreguei o Supabase. Confira a internet do celular.",4000);tentaDeNovo();return}
+  try{
+    if(!sb)sb=window.supabase.createClient(cfg.SUPABASE_URL,cfg.SUPABASE_KEY,{auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false}});
+    if(ch){const v=ch;ch=null;sb.removeChannel(v)}
+    inscrito=false;telas=0;desenha();
+    const meu=sb.channel("slides-"+sala,{config:{broadcast:{self:false,ack:false}}});
+    ch=meu;
+    meu.on("broadcast",{event:"estado"},m=>{if(ch===meu&&m&&m.payload)recebe(m.payload)})
+      .on("presence",{event:"sync"},()=>{if(ch!==meu)return;const ps=meu.presenceState()||{};let n=0;
+        Object.keys(ps).forEach(k=>(ps[k]||[]).forEach(p=>{if(p&&p.tipo==="tela")n++}));telas=n;if(n>0)presencaOk=true;marcaConexao()})
+      .subscribe(s=>{if(ch!==meu)return;
+        if(s==="SUBSCRIBED"){inscrito=true;espera=2000;const t=meu.track({tipo:"controle"});if(t&&t.catch)t.catch(()=>{});pedeEstado();desenha()}
+        else if(s==="CHANNEL_ERROR"||s==="TIMED_OUT"){inscrito=false;desenha();tentaDeNovo()}});
+  }catch(e){console.warn(e);inscrito=false;desenha();tentaDeNovo()}
+}
+function pedeEstado(){if(!ch||!inscrito)return;try{const r=ch.send({type:"broadcast",event:"ola",payload:{id:meuId}});if(r&&r.catch)r.catch(()=>{})}catch(e){}}
+let presencaOk=false; /* depois do 1º sync de presença, ela é a fonte da verdade */
+const telaOn=()=>presencaOk?telas>0:Date.now()-ultEstado<15000;
+function marcaConexao(){let s,t;
+  if(!inscrito){s="conectando";t="conectando…"}else if(telaOn()){s="ok";t="conectado"}else{s="off";t="apresentação fechada"}
+  const c=$("#conexao");c.dataset.st=s;$("#conTxt").textContent=t;$("#controle").classList.toggle("fraco",s!=="ok")}
+
+/* ================= comandos ================= */
+function manda(acao,n){
+  const agora=Date.now();if(acao!=="ir"&&agora-ultToque<180)return;ultToque=agora;
+  vibra(acao==="prox"?20:12);acorda();
+  if(acao==="prox")relAutoInicia();
+  if(!ch||!inscrito){toast("Ainda conectando ao servidor…");return}
+  try{const r=ch.send({type:"broadcast",event:"cmd",payload:{acao,n,id:meuId+"-"+agora}});if(r&&r.catch)r.catch(()=>{})}catch(e){}
+  clearTimeout(tSemResp);
+  tSemResp=setTimeout(()=>toast(`A apresentação não respondeu. Ela está aberta no computador com o código ${sala}?`,4500),2600)}
+function aperta(el){el.classList.remove("toque");void el.offsetWidth;el.classList.add("toque");setTimeout(()=>el.classList.remove("toque"),120)}
+
+/* ================= estado vindo da apresentação ================= */
+function recebe(p){clearTimeout(tSemResp);ultEstado=Date.now();
+  if(Array.isArray(p.lista))lista=p.lista;if(p.nomes)nomes=p.nomes;if(p.partes)partes=p.partes;
+  const mudouSlide=E&&p.slide!==E.slide;E=p;desenha();
+  if(mudouSlide){const nt=$("#notaTxt");nt.scrollTop=0}
+  if(p.slide!==ultSlide){ultSlide=p.slide}}
+
+/* notas: se o texto tiver um "→" por passo, destaca o trecho do passo atual */
+function notasHtml(nota,p,m){
+  if(!nota)return'<p class="vazio">(sem notas neste slide)</p>';
+  const seg=nota.split("→");
+  if(m>0&&seg.length===m+1){
+    return seg.map((s,i)=>{s=s.trim();if(!s)return"";const cls=i<p?"ja":i===p?"agora":"";
+      return`<p class="${cls}">${i>0?'<span class="seta">→</span> ':""}${esc(s)}</p>`}).join("")}
+  return`<p>${esc(nota)}</p>`}
+
+function desenha(){
+  marcaConexao();
+  if(!E){
+    $("#numAtual").textContent="–";$("#numTotal").textContent="–";
+    $("#titulo").textContent=inscrito?"Aguardando a apresentação…":"Conectando…";
+    $("#quemNome").textContent="—";$("#quemParte").textContent="";$("#pips").innerHTML="";$("#passoTxt").textContent="";
+    $("#aviso").hidden=true;$("#proxSub").innerHTML="&nbsp;";
+    $("#notaTxt").innerHTML='<p class="vazio">Abra a apresentação no computador e aperte C para ver o código.</p>';return}
+  document.documentElement.style.setProperty("--cor",CORES[E.quem]||CORES.A);
+  $("#quemNome").textContent=E.nome||"";$("#quemParte").textContent=E.parte||"";
+  $("#numAtual").textContent=E.slide;$("#numTotal").textContent=E.total;
+  $("#titulo").textContent=E.titulo||"";
+  $("#pips").innerHTML=E.passos?Array.from({length:E.passos},(_,i)=>`<i class="${i<E.passo?"on":""}"></i>`).join(""):"";
+  $("#passoTxt").textContent=E.passos?`${E.passo} de ${E.passos} itens na tela`:"";
+  const ultimo=E.passo>=E.passos;
+  $("#proxSub").textContent=ultimo?(E.prox?"→ "+E.prox.titulo:"fim da apresentação"):`mostra o item ${E.passo+1} de ${E.passos}`;
+  const av=$("#aviso");
+  if(E.prox&&E.prox.quem!==E.quem){av.hidden=false;av.style.setProperty("--cor2",CORES[E.prox.quem]||"#fff");av.classList.toggle("forte",ultimo);
+    av.innerHTML=`${ultimo?"Próximo toque passa para":"Depois deste slide fala"} <b>${esc(E.prox.nome)}</b> <span>· ${esc(E.prox.parte)}</span>`}
+  else av.hidden=true;
+  const nt=$("#notaTxt");nt.innerHTML=notasHtml(E.nota,E.passo,E.passos);
+  const ag=nt.querySelector(".agora");if(ag){const top=ag.offsetTop-nt.offsetTop-8;if(top<nt.scrollTop||top>nt.scrollTop+nt.clientHeight-40)nt.scrollTop=top}
+  if(!$("#folha").hidden)desenhaLista()}
+
+/* ================= lista de slides ================= */
+function desenhaLista(){const ol=$("#lista");
+  if(!lista.length){ol.innerHTML='<li class="vazio">A lista aparece quando a apresentação conectar.</li>';return}
+  let h="",grupo=null;
+  lista.forEach((x,i)=>{if(x.q!==grupo){grupo=x.q;h+=`<li class="grupo">${esc(nomes[x.q]||x.q)} · ${esc(partes[x.q]||"")}</li>`}
+    h+=`<li><button data-ir="${i+1}" class="${E&&E.slide===i+1?"atual":""}" style="--c:${CORES[x.q]||CORES.A}"><span class="n">${i+1}</span><span>${esc(x.t)}</span></button></li>`});
+  ol.innerHTML=h;const at=ol.querySelector(".atual");if(at)at.scrollIntoView({block:"center"})}
+function abreFolha(){$("#folha").hidden=false;desenhaLista()}
+function fechaFolha(){$("#folha").hidden=true}
+
+/* ================= eventos ================= */
+$("#btProx").addEventListener("click",e=>{aperta(e.currentTarget);manda("prox")});
+$("#btVolta").addEventListener("click",e=>{aperta(e.currentTarget);manda("volta")});
+$("#btReinicia").addEventListener("click",()=>manda("reinicia"));
+$("#btLista").addEventListener("click",abreFolha);
+$("#folhaX").addEventListener("click",fechaFolha);
+$("#folha").addEventListener("click",e=>{if(e.target.id==="folha")fechaFolha()});
+$("#lista").addEventListener("click",e=>{const b=e.target.closest("[data-ir]");if(b){manda("ir",+b.dataset.ir);fechaFolha()}});
+$("#relogio").addEventListener("click",()=>{relToggle();vibra(10)});
+$("#btZerar").addEventListener("click",()=>{relZera();fechaFolha();toast("Cronômetro zerado",1500)});
+$("#btSair").addEventListener("click",()=>{fechaFolha();mem.set("sala","");try{const u=new URL(location.href);u.searchParams.delete("sala");history.replaceState(null,"",u)}catch(e){}mostraEntrada()});
+let fs=mem.get("fs",1.05);
+const aplicaFs=()=>document.documentElement.style.setProperty("--fs",fs+"rem");aplicaFs();
+$("#fMais").addEventListener("click",()=>{fs=Math.min(1.7,+(fs+.1).toFixed(2));mem.set("fs",fs);aplicaFs()});
+$("#fMenos").addEventListener("click",()=>{fs=Math.max(.85,+(fs-.1).toFixed(2));mem.set("fs",fs);aplicaFs()});
+$("#fEntrada").addEventListener("submit",e=>{e.preventDefault();const v=$("#inCod").value.replace(/\D/g,"");
+  if(v.length<4){$("#entMsg").textContent="O código tem 4 números.";return}acorda();entra(v)});
+$("#inCod").addEventListener("input",e=>{e.target.value=e.target.value.replace(/\D/g,"").slice(0,6)});
+document.addEventListener("pointerdown",acorda,{once:true});
+document.addEventListener("visibilitychange",()=>{if(document.visibilityState!=="visible")return;acorda();if(!sala||$("#controle").hidden)return;
+  if(!ch||!inscrito||(ch.state&&ch.state!=="joined"))conecta();else pedeEstado()});
+window.addEventListener("online",()=>{if(sala&&!$("#controle").hidden&&!inscrito)conecta()});
+/* se ficar muito tempo sem notícia da apresentação, pede o estado de novo */
+setInterval(()=>{marcaConexao();if(inscrito&&Date.now()-ultEstado>12000)pedeEstado()},3000);
+
+/* ================= início ================= */
+const s=salaDaUrl()||mem.get("sala","");
+if(configurado&&s.length>=4)entra(s);else mostraEntrada();
+})();
+</script>
+</body>
+</html>
